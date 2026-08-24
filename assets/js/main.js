@@ -3,6 +3,7 @@
 
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = typeof window.gsap !== 'undefined';
+  var supportsHoverTilt = window.matchMedia('(hover: hover) and (pointer: fine)').matches && !prefersReducedMotion;
   if (hasGsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
   }
@@ -119,7 +120,75 @@
   }
 
   fillDiyaRow(document.getElementById('diyaRow'), window.innerWidth < 640 ? 18 : 32);
-  fillDiyaRow(document.getElementById('illuminationDiyas'), window.innerWidth < 640 ? 26 : 44);
+
+  /* Illumination scene gets two depth bands (far/near) instead of one flat
+     field, so the pinned scrub can drift them at different rates for real
+     parallax depth — see the ScrollTrigger onUpdate below. */
+  function buildIlluminationDepth(container) {
+    if (!container || container.dataset.built) return;
+    container.dataset.built = '1';
+    var far = document.createElement('div');
+    far.className = 'diya-depth diya-depth-far';
+    var near = document.createElement('div');
+    near.className = 'diya-depth diya-depth-near';
+    container.appendChild(far);
+    container.appendChild(near);
+    fillDiyaRow(far, window.innerWidth < 640 ? 20 : 34);
+    fillDiyaRow(near, window.innerWidth < 640 ? 14 : 22);
+  }
+  buildIlluminationDepth(document.getElementById('illuminationDiyas'));
+
+  /* ------------------------------------------------------------------
+     Hero parallax — depth layers drift opposite the cursor on hover-
+     capable devices, giving the scene real dimensional separation.
+     ------------------------------------------------------------------ */
+  if (supportsHoverTilt && hero) {
+    var heroLayers = [
+      { el: document.querySelector('.ghat-skyline'), mult: 6 },
+      { el: document.getElementById('diyaRow'), mult: 14 },
+      { el: document.getElementById('heroEmbers'), mult: 22 },
+      { el: document.querySelector('.hero-inner'), mult: -8 }
+    ];
+    hero.addEventListener('pointermove', function (e) {
+      var r = hero.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      heroLayers.forEach(function (l) {
+        if (!l.el) return;
+        l.el.style.transform = 'translate3d(' + (px * l.mult).toFixed(1) + 'px,' + (py * l.mult).toFixed(1) + 'px,0)';
+      });
+    });
+    hero.addEventListener('pointerleave', function () {
+      heroLayers.forEach(function (l) { if (l.el) l.el.style.transform = ''; });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Mouse-tracked 3D card tilt + light sheen (hover-capable devices only)
+     ------------------------------------------------------------------ */
+  if (supportsHoverTilt) {
+    var tiltCards = document.querySelectorAll('.beat-card, .price-card, .card, .testimonial-card, .contact-card');
+    tiltCards.forEach(function (card) {
+      card.classList.add('tilt-card');
+      card.addEventListener('pointermove', function (e) {
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width;
+        var py = (e.clientY - r.top) / r.height;
+        var rx = (0.5 - py) * 9;
+        var ry = (px - 0.5) * 9;
+        card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+        card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+        card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+        card.classList.add('is-tilting');
+      });
+      card.addEventListener('pointerleave', function () {
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+        card.classList.remove('is-tilting');
+      });
+    });
+  }
 
   var emberField = document.getElementById('heroEmbers');
   if (emberField && !prefersReducedMotion) {
@@ -234,6 +303,8 @@
     var illumSection = document.querySelector('.chapter-illumination');
     var pinWrap = document.getElementById('illuminationPinWrap');
     var diyaContainer = document.getElementById('illuminationDiyas');
+    var diyaFar = diyaContainer && diyaContainer.querySelector('.diya-depth-far');
+    var diyaNear = diyaContainer && diyaContainer.querySelector('.diya-depth-near');
 
     if (illumSection && pinWrap) {
       var mm = gsap.matchMedia();
@@ -265,6 +336,8 @@
             if (diyaContainer) {
               var diyaOpacity = idx >= 3 ? 1 : idx === 2 ? segProgress : 0;
               gsap.set(diyaContainer, { opacity: diyaOpacity });
+              if (diyaFar) diyaFar.style.transform = 'scale(0.85) translateY(' + (-6 - self.progress * 5).toFixed(1) + '%)';
+              if (diyaNear) diyaNear.style.transform = 'translateY(' + (2 + self.progress * 10).toFixed(1) + '%)';
             }
 
             var bars = slides[idx].querySelectorAll('.beat-progress i');
@@ -450,7 +523,21 @@
       ScrollTrigger.batch(items, {
         start: 'top 85%',
         onEnter: function (batch) {
-          gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)', stagger: 0.08 });
+          gsap.to(batch, {
+            opacity: 1,
+            y: 0,
+            rotationX: 0,
+            transformPerspective: 2400,
+            duration: 0.6,
+            ease: 'back.out(1.4)',
+            stagger: 0.08,
+            onComplete: function () {
+              /* Hand transform control back to the CSS custom-property-driven
+                 tilt-card rule (if this element has one) — otherwise GSAP's
+                 inline transform would permanently block hover tilt. */
+              gsap.set(batch, { clearProps: 'transform' });
+            }
+          });
         },
         once: true
       });

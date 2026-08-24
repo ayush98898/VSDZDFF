@@ -108,18 +108,26 @@
   /* ------------------------------------------------------------------
      Diya dot generator (reused for hero row + illumination scene)
      ------------------------------------------------------------------ */
-  function fillDiyaRow(container, count) {
+  function fillDiyaRow(container, count, waveDelay) {
     if (!container || container.dataset.built) return;
     container.dataset.built = '1';
+    var mid = (count - 1) / 2 || 1;
     for (var i = 0; i < count; i++) {
       var d = document.createElement('span');
       d.className = 'diya';
-      d.style.setProperty('--flicker-delay', (Math.random() * 2.6).toFixed(2) + 's');
+      /* Center-out ignition wave on load (like the ghats catching light
+         one after another), then hands off to the ongoing flicker. */
+      var dist = Math.abs(i - mid) / mid;
+      var delay = waveDelay ? dist * waveDelay + Math.random() * 0.3 : Math.random() * 2.6;
+      d.style.setProperty('--ignite-delay', delay.toFixed(2) + 's');
       container.appendChild(d);
     }
   }
 
-  fillDiyaRow(document.getElementById('diyaRow'), window.innerWidth < 640 ? 18 : 32);
+  var heroRowCount = window.innerWidth < 640 ? 18 : 32;
+  fillDiyaRow(document.getElementById('diyaRowFar'), Math.round(heroRowCount * 0.7), 1.6);
+  fillDiyaRow(document.getElementById('diyaRowMid'), Math.round(heroRowCount * 0.85), 1.3);
+  fillDiyaRow(document.getElementById('diyaRow'), heroRowCount, 1);
 
   /* Illumination scene gets two depth bands (far/near) instead of one flat
      field, so the pinned scrub can drift them at different rates for real
@@ -145,6 +153,8 @@
   if (supportsHoverTilt && hero) {
     var heroLayers = [
       { el: document.querySelector('.ghat-skyline'), mult: 6 },
+      { el: document.getElementById('diyaRowFar'), mult: 8 },
+      { el: document.getElementById('diyaRowMid'), mult: 11 },
       { el: document.getElementById('diyaRow'), mult: 14 },
       { el: document.getElementById('heroEmbers'), mult: 22 },
       { el: document.querySelector('.hero-inner'), mult: -8 }
@@ -235,16 +245,14 @@
     revealEls.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  /* Hero entrance (GSAP, respects reduced motion) */
+  /* Hero entrance (GSAP, respects reduced motion) — the title gets a
+     camera-focus-pull (blur + slight scale settle) rather than a plain
+     fade, so the opening beat reads as a deliberate reveal. */
   if (hasGsap && !prefersReducedMotion) {
-    gsap.from('.hero-eyebrow-row, .hero-title, .hero-sub, .hero-meta, .hero-actions, .hero-countdown', {
-      opacity: 0,
-      y: 24,
-      duration: 0.7,
-      ease: 'power2.out',
-      stagger: 0.09,
-      delay: 0.15
-    });
+    gsap.timeline({ delay: 0.1 })
+      .from('.hero-eyebrow-row', { opacity: 0, y: 12, duration: 0.5, ease: 'power2.out' })
+      .from('.hero-title', { opacity: 0, y: 20, scale: 1.05, filter: 'blur(16px)', duration: 1.1, ease: 'power2.out' }, '-=0.2')
+      .from('.hero-sub, .hero-meta, .hero-actions, .hero-countdown', { opacity: 0, y: 24, duration: 0.7, ease: 'power2.out', stagger: 0.09 }, '-=0.5');
   }
 
   /* ------------------------------------------------------------------

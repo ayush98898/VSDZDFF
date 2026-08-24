@@ -105,18 +105,21 @@
   setInterval(tickCountdown, 1000);
 
   /* ------------------------------------------------------------------
-     Hero: diya row + ember particles (skipped decoration under reduced motion)
+     Diya dot generator (reused for hero row + illumination scene)
      ------------------------------------------------------------------ */
-  var diyaRow = document.getElementById('diyaRow');
-  if (diyaRow) {
-    var diyaCount = window.innerWidth < 640 ? 18 : 32;
-    for (var i = 0; i < diyaCount; i++) {
+  function fillDiyaRow(container, count) {
+    if (!container || container.dataset.built) return;
+    container.dataset.built = '1';
+    for (var i = 0; i < count; i++) {
       var d = document.createElement('span');
       d.className = 'diya';
       d.style.setProperty('--flicker-delay', (Math.random() * 2.6).toFixed(2) + 's');
-      diyaRow.appendChild(d);
+      container.appendChild(d);
     }
   }
+
+  fillDiyaRow(document.getElementById('diyaRow'), window.innerWidth < 640 ? 18 : 32);
+  fillDiyaRow(document.getElementById('illuminationDiyas'), window.innerWidth < 640 ? 26 : 44);
 
   var emberField = document.getElementById('heroEmbers');
   if (emberField && !prefersReducedMotion) {
@@ -176,71 +179,111 @@
   }
 
   /* ------------------------------------------------------------------
-     Day tabs (Itinerary)
+     Chapter progress: right-side rail + floating chapter label
      ------------------------------------------------------------------ */
-  var dayTabs = document.getElementById('dayTabs');
-  if (dayTabs) {
-    var tabs = Array.prototype.slice.call(dayTabs.querySelectorAll('.day-tab'));
-    var panels = {
-      'tab-day1': document.getElementById('panel-day1'),
-      'tab-day2': document.getElementById('panel-day2'),
-      'tab-day3': document.getElementById('panel-day3')
-    };
+  var railPoints = [
+    { id: 'top', label: 'Prologue', roman: '' },
+    { id: 'chapter-arrival', label: 'Arrival', roman: 'I' },
+    { id: 'chapter-illumination', label: 'The Illumination', roman: 'II' },
+    { id: 'chapter-farewell', label: 'Farewell', roman: 'III' },
+    { id: 'packages', label: 'The Details', roman: '' }
+  ];
+  var railDots = Array.prototype.slice.call(document.querySelectorAll('.rail-dot'));
+  var chapterBug = document.getElementById('chapterBug');
+  var chapterBugRoman = document.getElementById('chapterBugRoman');
+  var chapterBugLabel = document.getElementById('chapterBugLabel');
 
-    function activateTab(tab) {
-      tabs.forEach(function (t) {
-        var selected = t === tab;
-        t.setAttribute('aria-selected', String(selected));
-        t.setAttribute('tabindex', selected ? '0' : '-1');
-      });
-      Object.keys(panels).forEach(function (id) {
-        var panel = panels[id];
-        var match = id === tab.id;
-        panel.classList.toggle('is-active', match);
-        if (match) panel.removeAttribute('hidden');
-        else panel.setAttribute('hidden', '');
-      });
-      initTimelineFill(panels[tab.id]);
-    }
-
-    tabs.forEach(function (tab, idx) {
-      tab.addEventListener('click', function () { activateTab(tab); });
-      tab.addEventListener('keydown', function (e) {
-        var next = null;
-        if (e.key === 'ArrowRight') next = tabs[(idx + 1) % tabs.length];
-        if (e.key === 'ArrowLeft') next = tabs[(idx - 1 + tabs.length) % tabs.length];
-        if (next) { next.focus(); activateTab(next); e.preventDefault(); }
-      });
+  railDots.forEach(function (dot) {
+    dot.addEventListener('click', function () {
+      var el = document.getElementById(dot.getAttribute('data-rail-target'));
+      if (el) el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
     });
+  });
+
+  function updateChapterProgress() {
+    if (!railDots.length && !chapterBug) return;
+    var y = (window.scrollY || window.pageYOffset) + window.innerHeight * 0.35;
+    var current = railPoints[0];
+    for (var i = 0; i < railPoints.length; i++) {
+      var el = document.getElementById(railPoints[i].id);
+      if (el && el.offsetTop <= y) current = railPoints[i];
+    }
+    railDots.forEach(function (dot) {
+      dot.classList.toggle('is-active', dot.getAttribute('data-rail-target') === current.id);
+    });
+    if (chapterBug) {
+      var show = current.roman !== '';
+      chapterBug.classList.toggle('is-visible', show);
+      if (show) {
+        chapterBugRoman.textContent = current.roman;
+        chapterBugLabel.textContent = ' — ' + current.label;
+      }
+    }
   }
+  document.addEventListener('scroll', updateChapterProgress, { passive: true });
+  window.addEventListener('resize', updateChapterProgress);
+  updateChapterProgress();
 
   /* ------------------------------------------------------------------
-     Timeline progress fill — fills as the active panel scrolls through view
+     Chapter II — pinned, scroll-scrubbed "day into night" scene
+     Gated to desktop + motion-allowed via GSAP matchMedia; the default
+     (non-JS / mobile / reduced-motion) CSS already renders all four
+     beats as a normal, fully-readable stacked section.
      ------------------------------------------------------------------ */
-  function initTimelineFill(panel) {
-    if (!panel) return;
-    var wrap = panel.querySelector('[data-timeline]');
-    var fill = panel.querySelector('[data-timeline-fill]');
-    if (!wrap || !fill) return;
+  if (hasGsap && window.ScrollTrigger) {
+    var illumSection = document.querySelector('.chapter-illumination');
+    var pinWrap = document.getElementById('illuminationPinWrap');
+    var diyaContainer = document.getElementById('illuminationDiyas');
 
-    function update() {
-      var rect = wrap.getBoundingClientRect();
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      var total = rect.height;
-      var visibleTop = Math.min(Math.max(vh * 0.75 - rect.top, 0), total);
-      var pct = total > 0 ? (visibleTop / total) * 100 : 0;
-      fill.style.height = pct + '%';
-    }
+    if (illumSection && pinWrap) {
+      var mm = gsap.matchMedia();
+      mm.add('(min-width: 900px) and (prefers-reduced-motion: no-preference)', function () {
+        illumSection.classList.add('is-pinned');
+        var slides = gsap.utils.toArray('.beat-slide', pinWrap);
+        var layers = gsap.utils.toArray('.scene-layer', pinWrap);
 
-    update();
-    if (wrap._timelineHandler) {
-      document.removeEventListener('scroll', wrap._timelineHandler);
+        var st = ScrollTrigger.create({
+          trigger: pinWrap,
+          start: 'top top',
+          end: '+=300%',
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+          onUpdate: function (self) {
+            var raw = self.progress * slides.length;
+            var idx = Math.min(slides.length - 1, Math.floor(raw));
+            var segProgress = raw - idx;
+
+            slides.forEach(function (s, i) {
+              var active = i === idx;
+              s.classList.toggle('is-current', active);
+              gsap.set(s, { opacity: active ? 1 : 0 });
+            });
+            layers.forEach(function (l, i) {
+              gsap.set(l, { opacity: i === idx ? 1 : 0 });
+            });
+            if (diyaContainer) {
+              var diyaOpacity = idx >= 3 ? 1 : idx === 2 ? segProgress : 0;
+              gsap.set(diyaContainer, { opacity: diyaOpacity });
+            }
+
+            var bars = slides[idx].querySelectorAll('.beat-progress i');
+            bars.forEach(function (bar, bi) {
+              var w = bi < idx ? 100 : bi === idx ? segProgress * 100 : 0;
+              bar.style.width = w + '%';
+            });
+          }
+        });
+
+        return function cleanup() {
+          st.kill();
+          illumSection.classList.remove('is-pinned');
+          slides.forEach(function (s) { gsap.set(s, { clearProps: 'opacity' }); });
+          layers.forEach(function (l) { gsap.set(l, { clearProps: 'opacity' }); });
+        };
+      });
     }
-    wrap._timelineHandler = update;
-    document.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
   }
-  initTimelineFill(document.getElementById('panel-day1'));
 
   /* ------------------------------------------------------------------
      Inclusions pill toggle (Premium / Luxury)
@@ -266,10 +309,10 @@
   }
 
   /* ------------------------------------------------------------------
-     Accordion (Booking Policies)
+     Accordions (Day 2 full schedule + Booking Policies — both use the
+     same [data-accordion] component)
      ------------------------------------------------------------------ */
-  var accordion = document.querySelector('[data-accordion]');
-  if (accordion) {
+  document.querySelectorAll('[data-accordion]').forEach(function (accordion) {
     accordion.querySelectorAll('.accordion-trigger').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -278,7 +321,7 @@
         if (panel) panel.classList.toggle('is-open', !expanded);
       });
     });
-  }
+  });
 
   /* ------------------------------------------------------------------
      Testimonials carousel

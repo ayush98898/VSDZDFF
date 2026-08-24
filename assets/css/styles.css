@@ -1604,6 +1604,381 @@ table.compare .dash { color: var(--ink-500); }
 }
 
 /* ==========================================================================
+   Cinematic story — chapter system, progress rail, pinned scene
+   ========================================================================== */
+
+/* Chapter label bug (top-left "Chapter II — The Illumination" tag) */
+
+.chapter-bug {
+  position: fixed;
+  top: 6.5rem;
+  left: clamp(1.25rem, 4vw, 2.5rem);
+  z-index: 60;
+  display: none;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-300);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity var(--dur-standard) var(--ease-standard), transform var(--dur-standard) var(--ease-standard);
+  pointer-events: none;
+}
+
+.chapter-bug.is-visible { opacity: 1; transform: translateY(0); }
+
+.chapter-bug .roman {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--gold-400);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@media (min-width: 960px) { .chapter-bug { display: inline-flex; } }
+
+/* Progress rail */
+
+.progress-rail {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+@media (min-width: 960px) { .progress-rail { display: flex; } }
+
+.progress-rail .rail-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--color-border);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.rail-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--navy-800);
+  border: 1px solid var(--color-border-strong);
+  position: relative;
+  transition: all var(--dur-standard) var(--ease-standard);
+}
+
+.rail-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: var(--ink-300);
+  background: var(--navy-900);
+  border: 1px solid var(--color-border);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+.rail-dot:hover::after,
+.rail-dot:focus-visible::after { opacity: 1; visibility: visible; }
+
+.rail-dot.is-active {
+  background: var(--gold-400);
+  border-color: var(--gold-400);
+  box-shadow: 0 0 0 4px rgba(216, 165, 68, 0.18);
+  transform: scale(1.3);
+}
+
+/* Chapter shared layout */
+
+.chapter {
+  position: relative;
+  padding-block: var(--space-3xl);
+  overflow: hidden;
+}
+
+.chapter-inner { position: relative; z-index: 1; }
+
+.chapter-index {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-border-strong);
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.chapter-heading { max-width: 760px; }
+
+.chapter-heading .eyebrow { margin-bottom: var(--space-sm); }
+
+.chapter-heading h2 { margin-top: var(--space-2xs); }
+.chapter-heading h2 em { color: var(--gold-400); font-style: italic; }
+
+.drop-cap {
+  margin-top: var(--space-md);
+  max-width: 62ch;
+}
+
+.drop-cap::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.4em;
+  line-height: 0.8;
+  float: left;
+  padding: 0.05em 0.08em 0 0;
+  color: var(--gold-400);
+  font-weight: 700;
+}
+
+/* Beat grid (Chapters I & III — magazine-style cards, non-pinned) */
+
+.beat-grid {
+  margin-top: var(--space-xl);
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 760px) { .beat-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.beat-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  background: linear-gradient(165deg, rgba(255,255,255,0.03), transparent 60%);
+  transition: transform var(--dur-standard) var(--ease-standard), border-color var(--dur-standard) var(--ease-standard);
+}
+
+.beat-card:hover { transform: translateY(-4px); border-color: var(--color-border-strong); }
+
+.beat-card .beat-time {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin-bottom: var(--space-sm);
+}
+
+.beat-card h3 { margin-bottom: var(--space-2xs); }
+
+.beat-card ul { margin-top: var(--space-sm); }
+
+.beat-card ul li {
+  position: relative;
+  padding-left: 1.1rem;
+  color: var(--ink-300);
+  font-size: 0.9rem;
+  padding-block: 0.25rem;
+  line-height: 1.55;
+}
+
+.beat-card ul li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.7rem;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold-500);
+}
+
+/* Chapter-specific scene tint (non-pinned ambient background) */
+
+.chapter-arrival { background: radial-gradient(120% 70% at 15% 0%, rgba(44, 58, 104, 0.35), transparent 60%), var(--navy-950); }
+.chapter-farewell { background: radial-gradient(120% 70% at 85% 0%, rgba(216, 165, 68, 0.14), transparent 55%), radial-gradient(100% 60% at 10% 100%, rgba(180, 72, 90, 0.12), transparent 55%), var(--navy-950); }
+
+/* ---- Chapter II: The Illumination — pinned/scrubbed centerpiece ---- */
+
+.chapter-illumination {
+  padding-block: var(--space-2xl);
+  background: var(--navy-950);
+}
+
+.pin-wrap { position: relative; }
+
+.pin-stage {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.scene-bg {
+  display: none; /* enabled only in JS-driven pinned mode */
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.scene-layer.is-base { opacity: 1; }
+
+.scene-day { background: linear-gradient(160deg, #3a2f10, #171008 70%); }
+.scene-golden { background: linear-gradient(160deg, #5a3312, #1a0f08 70%); }
+.scene-dusk { background: linear-gradient(160deg, #2a1a3a, #100a20 70%); }
+.scene-night { background: linear-gradient(160deg, #0a0f2a, #05070f 70%); }
+
+.scene-diyas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-evenly;
+  padding: 0 4% 4%;
+  opacity: 0;
+  z-index: 1;
+}
+
+.beat-track { position: relative; z-index: 2; width: 100%; }
+
+.beat-slide {
+  position: relative;
+  min-height: 46vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-2xl) clamp(1.25rem, 5vw, 4rem);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-md);
+}
+
+.beat-slide:last-child { margin-bottom: 0; }
+
+.beat-slide[data-beat="0"] { background: linear-gradient(155deg, #3a2f10, #14100a 75%); }
+.beat-slide[data-beat="1"] { background: linear-gradient(155deg, #5a3312, #170f08 75%); }
+.beat-slide[data-beat="2"] { background: linear-gradient(155deg, #2a1a3a, #100a20 75%); }
+.beat-slide[data-beat="3"] { background: linear-gradient(155deg, #0d1330, #05070f 75%); }
+
+.beat-clock {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin-bottom: var(--space-sm);
+}
+
+.beat-slide h2 { max-width: 16ch; }
+.beat-slide p { max-width: 56ch; margin-top: var(--space-sm); color: var(--ink-200); font-size: 1.02rem; line-height: 1.7; }
+
+.beat-progress {
+  margin-top: var(--space-xl);
+  display: flex;
+  gap: 0.4rem;
+}
+
+.beat-progress span {
+  height: 3px;
+  flex: 1;
+  border-radius: var(--radius-pill);
+  background: rgba(247, 243, 232, 0.12);
+  overflow: hidden;
+}
+
+.beat-progress span i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-500), var(--ember-500));
+}
+
+/* Pinned mode overrides — applied only once JS confirms desktop + motion allowed */
+
+.chapter-illumination.is-pinned .scene-bg { display: block; }
+.chapter-illumination.is-pinned .scene-layer { transition: none; }
+.chapter-illumination.is-pinned .scene-diyas { display: flex; }
+
+.chapter-illumination.is-pinned .pin-stage { min-height: 100vh; border-radius: 0; border: none; }
+
+.chapter-illumination.is-pinned .beat-track { height: 100%; }
+
+.chapter-illumination.is-pinned .beat-slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  background: transparent !important;
+  opacity: 0;
+  border-radius: 0;
+  justify-content: center;
+  padding-inline: clamp(1.25rem, 8vw, 6rem);
+}
+
+.chapter-illumination.is-pinned .beat-slide.is-current { opacity: 1; }
+
+/* Full-schedule disclosure (Day 2 hour-by-hour, kept intact for completeness) */
+
+.schedule-toggle-wrap { margin-top: var(--space-xl); text-align: center; }
+
+/* Interlude divider between the story and the practical details */
+
+.interlude {
+  padding-block: var(--space-2xl);
+  text-align: center;
+  position: relative;
+}
+
+.interlude::before, .interlude::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: var(--space-xl);
+  background: linear-gradient(180deg, transparent, var(--color-border-strong));
+  margin-inline: auto;
+}
+
+.interlude::after { transform: scaleY(-1); }
+
+.interlude-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  color: var(--ink-200);
+  margin-block: var(--space-lg);
+}
+
+.act-two-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-illumination.is-pinned .beat-slide { position: static; opacity: 1; padding-block: var(--space-2xl); margin-bottom: var(--space-md); background: linear-gradient(155deg, #2a1a3a, #100a20 75%) !important; }
+  .chapter-illumination.is-pinned .pin-stage { min-height: auto; }
+  .chapter-illumination.is-pinned .scene-bg { display: none; }
+}
+
+/* ==========================================================================
    Misc
    ========================================================================== */
 

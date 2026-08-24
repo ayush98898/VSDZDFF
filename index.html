@@ -38,8 +38,7 @@
     </a>
 
     <nav class="nav-links" aria-label="Primary">
-      <a href="#experience">Experience</a>
-      <a href="#itinerary">Itinerary</a>
+      <a href="#chapter-arrival">The Story</a>
       <a href="#packages">Packages</a>
       <a href="#testimonials">Testimonials</a>
       <a href="#faq">Policies</a>
@@ -59,8 +58,7 @@
 
 <div class="mobile-menu" id="mobileMenu">
   <nav aria-label="Mobile">
-    <a href="#experience">Experience</a>
-    <a href="#itinerary">Itinerary</a>
+    <a href="#chapter-arrival">The Story</a>
     <a href="#packages">Packages</a>
     <a href="#testimonials">Testimonials</a>
     <a href="#faq">Policies</a>
@@ -71,6 +69,17 @@
     <span class="form-note">+91 92143 13559 · info@wandermate.in</span>
   </div>
 </div>
+
+<!-- Chapter progress: label bug + right-side rail (desktop only; mobile relies on normal scroll + hamburger nav) -->
+<div class="chapter-bug" id="chapterBug"><span class="roman" id="chapterBugRoman"></span><span id="chapterBugLabel"></span></div>
+<nav class="progress-rail" id="progressRail" aria-label="Chapter navigation">
+  <span class="rail-line" aria-hidden="true"></span>
+  <button class="rail-dot" data-rail-target="top" data-label="Prologue" aria-label="Jump to Prologue"></button>
+  <button class="rail-dot" data-rail-target="chapter-arrival" data-label="I — Arrival" aria-label="Jump to Chapter I, Arrival"></button>
+  <button class="rail-dot" data-rail-target="chapter-illumination" data-label="II — The Illumination" aria-label="Jump to Chapter II, The Illumination"></button>
+  <button class="rail-dot" data-rail-target="chapter-farewell" data-label="III — Farewell" aria-label="Jump to Chapter III, Farewell"></button>
+  <button class="rail-dot" data-rail-target="packages" data-label="The Details" aria-label="Jump to packages and booking details"></button>
+</nav>
 
 <main id="main">
 
@@ -156,14 +165,14 @@
   </div>
 
   <!-- =========================================================
-       EXPERIENCE / ABOUT
+       OVERTURE
        ========================================================= -->
-  <section class="section" id="experience">
+  <section class="section" id="overture">
     <div class="container">
       <div class="section-head" data-reveal>
-        <span class="eyebrow">The Experience</span>
+        <span class="eyebrow">The Overture</span>
         <h2>An Exclusive Dev Deepawali Experience</h2>
-        <p class="lead">A 2-Night, 3-Day journey into the divine illumination of Banaras. Wandermate has partnered with Akashganga to bring you an unparalleled, premium experience of Dev Deepawali — the ghats glowing with millions of earthen lamps, met with Wandermate's renowned hospitality and Akashganga's exclusive grand events.</p>
+        <p class="lead">A 2-Night, 3-Day journey into the divine illumination of Banaras. Wandermate has partnered with Akashganga to bring you an unparalleled, premium experience of Dev Deepawali — the ghats glowing with millions of earthen lamps, met with Wandermate's renowned hospitality and Akashganga's exclusive grand events. What follows is that journey, told the way it unfolds.</p>
       </div>
 
       <div class="grid grid-2" data-reveal-group>
@@ -205,271 +214,243 @@
   </section>
 
   <!-- =========================================================
-       ITINERARY
+       CHAPTER I — ARRIVAL  (Day 1, non-pinned cinematic chapter)
        ========================================================= -->
-  <section class="section section-alt" id="itinerary">
+  <section class="chapter chapter-arrival" id="chapter-arrival" data-chapter-label="Arrival" data-chapter-roman="I">
+    <div class="container chapter-inner">
+      <div class="chapter-heading" data-reveal>
+        <span class="chapter-index">I</span>
+        <span class="eyebrow">Day One</span>
+        <h2>Arrival <em>&amp; the First Aarti</em></h2>
+        <p class="lead drop-cap">The city meets you slowly. A private transfer, a handwritten note waiting at check-in, no itinerary pressing on the afternoon — and then, as evening falls, the ghats begin to glow.</p>
+      </div>
+
+      <div class="beat-grid" data-reveal-group>
+        <article class="beat-card" data-reveal style="--stagger-i:0">
+          <span class="beat-time">Afternoon</span>
+          <h3>Welcome to Kashi</h3>
+          <ul>
+            <li>Private AC vehicle pickup from airport or railway station, with a greeting from our professional driver and packed bottle water</li>
+            <li>Check-in at a premium property or boutique hotel; welcome kit — drink, handwritten city note, printed itinerary booklet</li>
+            <li>Briefing with your Kashi companion, then a quick rest — no rush, no itinerary, optional light room service or a short nap</li>
+          </ul>
+        </article>
+        <article class="beat-card" data-reveal style="--stagger-i:1">
+          <span class="beat-time">Evening</span>
+          <h3>The Ganga Aarti</h3>
+          <ul>
+            <li>Ghat transfer with your local companion, premium seating at Dashashwamedh Ghat for the main Ganga Aarti ceremony</li>
+            <li>Diya floating and kulhad chai on the river as the crowds disperse</li>
+          </ul>
+        </article>
+        <article class="beat-card" data-reveal style="--stagger-i:2">
+          <span class="beat-time">Night</span>
+          <h3>Street Food Walk — Chowk</h3>
+          <ul>
+            <li>The illuminated lanes of the old city: tamatar chaat, aloo tikki, Banarasi paan, gol-gappe, thandai, palangtod mithai (seasonal)</li>
+            <li>Every dish with its full story — the vendor, the history, the craft behind it — through hidden bylanes and lit temples</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       CHAPTER II — THE ILLUMINATION  (Day 2, pinned/scrubbed centerpiece)
+       ========================================================= -->
+  <section class="chapter chapter-illumination" id="chapter-illumination" data-chapter-label="The Illumination" data-chapter-roman="II">
     <div class="container">
-      <div class="section-head" data-reveal>
-        <span class="eyebrow">Day by Day</span>
-        <h2>Your 3-Day Journey</h2>
-        <p class="lead">Every hour considered — from crowd-beating arrival timing to a farewell chai at a heritage ghat. This is the exact rhythm of your Dev Deepawali.</p>
+      <div class="chapter-heading" data-reveal style="margin-bottom:var(--space-xl);">
+        <span class="chapter-index">II</span>
+        <span class="eyebrow">Day Two — The Main Event</span>
+        <h2>The Illumination</h2>
+        <p class="lead drop-cap">Scroll to watch the day turn to night the way it really happens on the ghats — from a calm fort morning to 84 ghats lit in one unbroken line of fire.</p>
       </div>
+    </div>
 
-      <div class="day-tabs" role="tablist" aria-label="Itinerary days" id="dayTabs">
-        <button class="day-tab" role="tab" id="tab-day1" aria-controls="panel-day1" aria-selected="true">Day 1<span class="tab-sub">Arrival & Ganga Aarti</span></button>
-        <button class="day-tab" role="tab" id="tab-day2" aria-controls="panel-day2" aria-selected="false" tabindex="-1">Day 2<span class="tab-sub">Dev Deepawali — Main Event</span></button>
-        <button class="day-tab" role="tab" id="tab-day3" aria-controls="panel-day3" aria-selected="false" tabindex="-1">Day 3<span class="tab-sub">Blessings & Departure</span></button>
-      </div>
+    <div class="pin-wrap" id="illuminationPinWrap">
+      <div class="pin-stage" id="illuminationStage">
+        <div class="scene-bg" aria-hidden="true">
+          <div class="scene-layer scene-day is-base" data-scene-layer="0"></div>
+          <div class="scene-layer scene-golden" data-scene-layer="1"></div>
+          <div class="scene-layer scene-dusk" data-scene-layer="2"></div>
+          <div class="scene-layer scene-night" data-scene-layer="3"></div>
+          <div class="scene-diyas" id="illuminationDiyas"></div>
+        </div>
 
-      <!-- DAY 1 -->
-      <div class="day-panel is-active" id="panel-day1" role="tabpanel" aria-labelledby="tab-day1">
-        <div class="timeline" data-timeline>
-          <div class="timeline-fill" data-timeline-fill></div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Arrival & Check-In</span>
-            <h3>Welcome to Kashi</h3>
-            <ul>
-              <li>Private AC vehicle pickup from airport or railway station, with a greeting from our professional driver and packed bottle water</li>
-              <li>Check-in at a premium property or boutique hotel</li>
-              <li>Welcome kit handover — welcome drink, handwritten city note, printed itinerary booklet</li>
-              <li>Briefing session with your Kashi companion about the trip</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Rest & Unwind</span>
-            <h3>No Rush, No Itinerary</h3>
-            <ul>
-              <li>Quick rest at the property — take it slow after arrival</li>
-              <li>Optional: light room service or a short nap</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Evening</span>
-            <h3>The Ganga Aarti — Premium Riverside Experience</h3>
-            <ul>
-              <li>Ghat transfer with your local companion</li>
-              <li>Premium Aarti seating — disembark at Dashashwamedh Ghat for the main Ganga Aarti ceremony</li>
-              <li>Diya floating and kulhad chai as the crowds disperse</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Night</span>
-            <h3>Street Food Walk — Chowk & Old City</h3>
-            <ul>
-              <li>Walk the illuminated lanes of Chowk with your companion</li>
-              <li>Tamatar chaat, aloo tikki, Banarasi paan, gol-gappe, iconic Banarasi thandai, palangtod mithai (seasonal), Banarasi sweets</li>
-              <li>Every dish with its full story — the vendor, the history, the craft behind it</li>
-              <li>Hidden bylanes, lit temples, and the completely different energy of old Kashi at night</li>
-            </ul>
+        <div class="container">
+          <div class="beat-track" id="illuminationTrack">
+            <div class="beat-slide is-current" data-beat="0">
+              <span class="beat-clock">11:00 AM — Ramnagar Fort</span>
+              <h2 class="font-display">The Festival Begins</h2>
+              <p>Entry through Akashganga's dedicated QR channel — no queue, fort grounds still calm. A guided museum walk through royal palanquins, vintage cars and silk regalia, then a live Banarasi weaving &amp; zardozi workshop, closing with a proper seated Banaras Hi-Tea.</p>
+              <div class="beat-progress" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+            </div>
+            <div class="beat-slide" data-beat="1">
+              <span class="beat-clock">2:30 – 3:45 PM</span>
+              <h2 class="font-display">Music, Lanterns &amp; Fire</h2>
+              <p>Benaras Gharana classical music into Kathak, timed against the fort and the Ganga below as light turns to gold. Then sky lanterns released from the fort precinct as firecrackers arc above the river — the formal close of the land festival.</p>
+              <div class="beat-progress" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+            </div>
+            <div class="beat-slide" data-beat="2">
+              <span class="beat-clock">4:00 – Dusk</span>
+              <h2 class="font-display">Aboard the Cruise</h2>
+              <p>A private, QR-managed ghat transfer — none of the chaos of the public boats — onto a boat positioned facing the full length of Varanasi's western bank. On-seat refreshments, and the first diyas being lit from waterline to highest step.</p>
+              <div class="beat-progress" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+            </div>
+            <div class="beat-slide" data-beat="3">
+              <span class="beat-clock">Dusk – 8:30 PM</span>
+              <h2 class="font-display">84 Ghats, One Line of Fire</h2>
+              <p>All 84 ghats lit from waterline to rooftop, fireworks arcing overhead, your storyteller narrating each one — Dashashwamedh, Manikarnika, Kedar, Harishchandra, Assi. Then ashore to a Ramnagar Fort dinner: buffet on Premium, private chef-attended fine dining on Luxury.</p>
+              <div class="beat-progress" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- DAY 2 -->
-      <div class="day-panel" id="panel-day2" role="tabpanel" aria-labelledby="tab-day2" hidden>
-        <div class="timeline" data-timeline>
-          <div class="timeline-fill" data-timeline-fill></div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Morning — Free & Unscheduled</span>
-            <h3>The City Prepares</h3>
-            <ul>
-              <li>Sleep in, or take a slow walk to the nearest ghat on your own — sit with a chai and watch Varanasi prepare for the night ahead</li>
-              <li>Guide available for an optional independent ghat walk, 8:00–10:00 AM, for those who want company</li>
-              <li>Nothing scheduled — rest, absorb, and be ready to leave the hotel by 10:30 AM</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">10:30 AM</span>
-            <h3>Departure for Ramnagar Fort</h3>
-            <ul>
-              <li>The single most important crowd decision of the day — crossing before 11:00 AM keeps the journey smooth (20–30 min); post-2:00 PM the same crossing can take 60–90 min</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">11:00 AM</span>
-            <h3>Akashganga Kashganga Festival Begins</h3>
-            <ul>
-              <li>Arrive at Ramnagar Fort — entry through Akashganga's dedicated QR-based channel, no general queue</li>
-              <li>The festival begins with the fort grounds still calm and spacious</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">11:00 AM – 12:15 PM</span>
-            <h3>Ramnagar Fort Museum Walk</h3>
-            <ul>
-              <li>Guided walk through the fort museum — royal palanquins, vintage cars, antique weapons, astronomical instruments, silk regalia of the Maharajas of Kashi</li>
-              <li>First in means the museum is quiet and unhurried, ahead of the afternoon crowd</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">12:15 – 1:30 PM</span>
-            <h3>Handicraft Workshop & Cultural Exhibition</h3>
-            <ul>
-              <li>Live Banarasi weaving demonstration and zardozi embroidery workshop</li>
-              <li>A cultural exhibition documenting Kashi's textile and craft traditions, with guided artisan interaction</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">1:30 – 2:30 PM</span>
-            <h3>Banaras Hi-Tea</h3>
-            <ul>
-              <li>A proper seated meal — tamatar chaat, litti chokha, baati, thandai, seasonal mithai</li>
-              <li>Eat well: the next meal is post-cruise dinner, and the river evening is cool</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">2:30 – 3:45 PM</span>
-            <h3>Classical Music & Kathak Performance</h3>
-            <ul>
-              <li>The centrepiece cultural programme — Benaras Gharana classical music followed by Kathak, against the fort and the Ganga below</li>
-              <li>Timed so light shifts toward golden hour as the first diya placements become visible across the water</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">3:45 PM</span>
-            <h3>Lantern & Fireworks Celebration</h3>
-            <ul>
-              <li>Sky lanterns released from the Ramnagar Fort precinct as firecrackers arc above the Ganga</li>
-              <li>An unobstructed view across the river to the western bank — Varanasi's 84 ghats beginning to fill with lanterns and light</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">4:00 – 4:30 PM</span>
-            <h3>Private Ghat Transfer & Cruise Boarding</h3>
-            <ul>
-              <li>Akashganga escorts the group from the festival grounds to the private ghat boarding point — QR-managed, calm, no public-ghat chaos</li>
-              <li>On-seat refreshments served immediately on boarding</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">4:30 PM – Dusk</span>
-            <h3>The Golden Hour on the River</h3>
-            <ul>
-              <li>The boat positions facing the full length of Varanasi's western bank — all 84 ghats in a single unbroken view</li>
-              <li>Diyas lit from waterline to highest step, incense and firecracker smoke drifting across the water, temple bells and conch shells carrying across the river</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Dusk – 8:30 PM</span>
-            <h3>Full Dev Deepawali Illumination</h3>
-            <ul>
-              <li>All 84 ghats lit from waterline to rooftop — an unbroken line of fire across the horizon, reflected on the river</li>
-              <li>Fireworks arc overhead from multiple points along the bank simultaneously</li>
-              <li>Your storyteller narrates each ghat — Dashashwamedh, Manikarnika, Kedar, Harishchandra, Assi — its name, deity, legend and history</li>
-              <li>On-seat refreshments and snack counter available throughout</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">8:30 PM</span>
-            <h3>Disembark & Move to Dinner</h3>
-            <ul>
-              <li>The boat returns to the Ramnagar private ghat — a short walk to the dinner venue within the fort precinct</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Post-Cruise Dinner</span>
-            <h3>Two Experiences — Premium & Luxury</h3>
-            <ul>
-              <li><strong style="color:var(--ink-100)">Premium — Ramnagar Fort Buffet Dinner:</strong> a generous Banarasi buffet in the open courtyard — dal baati, lal maas, Banarasi korma, assorted breads, mithai counter, thandai</li>
-              <li><strong style="color:var(--wine-400)">Luxury — Ramnagar Fort Special Fine Dining:</strong> a separate, private, chef-attended multi-course dinner drawing on high Awadhi and Banarasi traditions — shorba, dum preparations, slow-cooked meats, fine breads, a seasonal dessert course</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">~10:30 – 11:00 PM</span>
-            <h3>Return Transfer to Hotel</h3>
-            <ul>
-              <li>Private vehicle waiting at Ramnagar. Rest — Day 2 is complete.</li>
-            </ul>
+    <div class="container">
+      <div class="schedule-toggle-wrap" data-reveal>
+        <div class="accordion" data-accordion style="border-top:none;max-width:820px;margin-inline:auto;text-align:left;">
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-day2">See the full Day 2 schedule, hour by hour<span class="plus" aria-hidden="true"></span></button>
+            <div class="accordion-panel" id="acc-day2"><div class="accordion-panel-inner">
+              <div class="timeline" style="margin-top:var(--space-md);">
+                <div class="timeline-item">
+                  <span class="timeline-time">Morning — Free &amp; Unscheduled</span>
+                  <h3>The City Prepares</h3>
+                  <ul>
+                    <li>Sleep in, or walk to the nearest ghat on your own — sit with a chai and watch Varanasi prepare for the night ahead</li>
+                    <li>Guide available for an optional independent ghat walk, 8:00–10:00 AM; nothing scheduled — be ready to leave the hotel by 10:30 AM</li>
+                  </ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">10:30 AM</span>
+                  <h3>Departure for Ramnagar Fort</h3>
+                  <ul><li>The single most important crowd decision of the day — crossing before 11:00 AM keeps the journey to 20–30 min; post-2:00 PM it can take 60–90 min</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">11:00 AM – 12:15 PM</span>
+                  <h3>Ramnagar Fort Museum Walk</h3>
+                  <ul><li>Royal palanquins, vintage cars, antique weapons, astronomical instruments, silk regalia of the Maharajas of Kashi — quiet and unhurried, first in ahead of the afternoon crowd</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">12:15 – 1:30 PM</span>
+                  <h3>Handicraft Workshop &amp; Cultural Exhibition</h3>
+                  <ul><li>Live Banarasi weaving demonstration and zardozi embroidery workshop, with guided artisan interaction</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">1:30 – 2:30 PM</span>
+                  <h3>Banaras Hi-Tea</h3>
+                  <ul><li>A proper seated meal — tamatar chaat, litti chokha, baati, thandai, seasonal mithai</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">2:30 – 3:45 PM</span>
+                  <h3>Classical Music &amp; Kathak Performance</h3>
+                  <ul><li>Benaras Gharana classical music followed by Kathak, against the fort and the Ganga below, timed to golden hour</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">3:45 PM</span>
+                  <h3>Lantern &amp; Fireworks Celebration</h3>
+                  <ul><li>Sky lanterns released from the fort precinct as firecrackers arc above the Ganga — the formal close of the land festival</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">4:00 – 4:30 PM</span>
+                  <h3>Private Ghat Transfer &amp; Cruise Boarding</h3>
+                  <ul><li>QR-managed, calm private boarding — no public-ghat chaos — with on-seat refreshments served immediately</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">4:30 PM – Dusk</span>
+                  <h3>The Golden Hour on the River</h3>
+                  <ul><li>All 84 ghats in a single unbroken view; diyas lit from waterline to highest step, temple bells and conch shells carrying across the river</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">Dusk – 8:30 PM</span>
+                  <h3>Full Dev Deepawali Illumination</h3>
+                  <ul><li>An unbroken line of fire across the horizon; your storyteller narrates each ghat — Dashashwamedh, Manikarnika, Kedar, Harishchandra, Assi — its name, deity, legend and history</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">8:30 PM</span>
+                  <h3>Disembark &amp; Move to Dinner</h3>
+                  <ul><li>The boat returns to the Ramnagar private ghat — a short walk to the dinner venue within the fort precinct</li></ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">Post-Cruise Dinner</span>
+                  <h3>Two Experiences — Premium &amp; Luxury</h3>
+                  <ul>
+                    <li><strong style="color:var(--ink-100)">Premium — Ramnagar Fort Buffet Dinner:</strong> dal baati, lal maas, Banarasi korma, assorted breads, mithai counter, thandai</li>
+                    <li><strong style="color:var(--wine-400)">Luxury — Ramnagar Fort Special Fine Dining:</strong> a private, chef-attended multi-course dinner — shorba, dum preparations, slow-cooked meats, fine breads, a seasonal dessert course</li>
+                  </ul>
+                </div>
+                <div class="timeline-item">
+                  <span class="timeline-time">~10:30 – 11:00 PM</span>
+                  <h3>Return Transfer to Hotel</h3>
+                  <ul><li>Private vehicle waiting at Ramnagar. Rest — Day 2 is complete.</li></ul>
+                </div>
+              </div>
+            </div></div>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- DAY 3 -->
-      <div class="day-panel" id="panel-day3" role="tabpanel" aria-labelledby="tab-day3" hidden>
-        <div class="timeline" data-timeline>
-          <div class="timeline-fill" data-timeline-fill></div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Early Morning</span>
-            <h3>Final Morning Ghat Walk</h3>
-            <ul>
-              <li>Walk the ghats from Assi Ghat northward in the early morning light — Subah-e-Banaras, yoga practitioners, Vedic chanting at the river</li>
-              <li>North through Tulsi Ghat and past Chet Singh Ghat — quieter and contemplative at dawn</li>
-              <li>Visit an ancient Akhada and learn the history of the ghats</li>
-              <li>A farewell chai at a heritage ghat — one last sit with the river before you leave</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Breakfast</span>
-            <h3>Farewell Street Food Walk — Assi & Lanka</h3>
-            <ul>
-              <li>Kachori sabzi, jalebi, kulhad chai, lassi — the definitive Banarasi morning spread</li>
-              <li>Your companion shares final stories and reflections about the city over breakfast</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Late Morning</span>
-            <h3>BHU Campus & New Vishwanath Temple</h3>
-            <ul>
-              <li>Depart for Banaras Hindu University — one of Asia's largest residential universities, founded 1916 by Pandit Madan Mohan Malaviya</li>
-              <li>Walk BHU's grand central avenue — colonial Indo-Saracenic architecture, peacocks on lawns, a century of India's intellectual history</li>
-              <li>The New Vishwanath Temple — built entirely in white Makrana marble, rising 77 metres, open to all without restriction; unhurried darshan away from the crowded old-city temple</li>
-            </ul>
-          </div>
-
-          <div class="timeline-item" data-reveal>
-            <span class="timeline-dot"></span>
-            <span class="timeline-time">Checkout & Departure</span>
-            <h3>Farewell, Kashi</h3>
-            <ul>
-              <li>Return to the property for packing and checkout</li>
-              <li>Private AC vehicle transfer to the airport or railway station</li>
-              <li>A Wandermate farewell — a handwritten note from your Kashi companion and a surprise gift</li>
-            </ul>
-          </div>
-        </div>
+  <!-- =========================================================
+       CHAPTER III — FAREWELL  (Day 3, non-pinned cinematic chapter)
+       ========================================================= -->
+  <section class="chapter chapter-farewell" id="chapter-farewell" data-chapter-label="Farewell" data-chapter-roman="III">
+    <div class="container chapter-inner">
+      <div class="chapter-heading" data-reveal>
+        <span class="chapter-index">III</span>
+        <span class="eyebrow">Day Three</span>
+        <h2>Blessings <em>&amp; Departure</em></h2>
+        <p class="lead drop-cap">Kashi says goodbye slowly too — a dawn walk, a last kachori and chai, a marble temple at the edge of the old city, and a note waiting for you at checkout.</p>
       </div>
+
+      <div class="beat-grid" data-reveal-group>
+        <article class="beat-card" data-reveal style="--stagger-i:0">
+          <span class="beat-time">Early Morning</span>
+          <h3>Final Ghat Walk</h3>
+          <ul>
+            <li>Assi Ghat northward in the early light — Subah-e-Banaras, yoga practitioners, Vedic chanting at the river</li>
+            <li>North through Tulsi Ghat and past Chet Singh Ghat, an ancient Akhada, and a farewell chai at a heritage ghat</li>
+          </ul>
+        </article>
+        <article class="beat-card" data-reveal style="--stagger-i:1">
+          <span class="beat-time">Breakfast</span>
+          <h3>Farewell Street Food — Assi &amp; Lanka</h3>
+          <ul>
+            <li>Kachori sabzi, jalebi, kulhad chai, lassi — the definitive Banarasi morning spread</li>
+            <li>Your companion shares final stories and reflections about the city over breakfast</li>
+          </ul>
+        </article>
+        <article class="beat-card" data-reveal style="--stagger-i:2">
+          <span class="beat-time">Late Morning</span>
+          <h3>BHU &amp; New Vishwanath Temple</h3>
+          <ul>
+            <li>Banaras Hindu University's grand central avenue — colonial Indo-Saracenic architecture, peacocks on the lawns</li>
+            <li>The New Vishwanath Temple — 77m of white Makrana marble, unhurried darshan away from the old-city crowds</li>
+          </ul>
+        </article>
+        <article class="beat-card" data-reveal style="--stagger-i:3">
+          <span class="beat-time">Checkout</span>
+          <h3>Farewell, Kashi</h3>
+          <ul>
+            <li>Return to the property for packing, then a private AC vehicle transfer to the airport or railway station</li>
+            <li>A handwritten note from your Kashi companion, and a surprise gift</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       INTERLUDE — transition from story to practical details
+       ========================================================= -->
+  <section class="interlude" id="details" data-reveal>
+    <div class="container">
+      <span class="act-two-tag">Act Two</span>
+      <p class="interlude-text">The story ends where the planning begins.<br/>Here is everything you need to make it yours.</p>
     </div>
   </section>
 
@@ -972,8 +953,8 @@
       <div class="footer-col">
         <h4>Explore</h4>
         <ul>
-          <li><a href="#experience">The Experience</a></li>
-          <li><a href="#itinerary">Itinerary</a></li>
+          <li><a href="#overture">The Overture</a></li>
+          <li><a href="#chapter-arrival">The Story</a></li>
           <li><a href="#packages">Packages & Pricing</a></li>
           <li><a href="#faq">Booking Policies</a></li>
         </ul>

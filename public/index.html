@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WhatsApp AI Broadcaster</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="login-screen">
+    <form id="login-form">
+      <h1>WhatsApp AI Broadcaster</h1>
+      <label for="password">Dashboard password</label>
+      <input type="password" id="password" autocomplete="current-password" required />
+      <div id="login-error"></div>
+      <button type="submit">Log in</button>
+    </form>
+  </div>
+
+  <div id="app" hidden>
+    <nav>
+      <h1>WA Broadcaster</h1>
+      <button data-view="inbox" class="active">Inbox</button>
+      <button data-view="contacts">Contacts</button>
+      <button data-view="broadcast">Broadcast</button>
+      <button data-view="settings">AI Settings</button>
+    </nav>
+    <main id="view-root"></main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -233,17 +233,17 @@
         <div class="monogram" id="monogram">WM</div>
         <div>
           <div class="biz-name" contenteditable="true" id="bizName" spellcheck="false">WANDERMATE</div>
-          <div class="biz-tag" contenteditable="true" id="bizTag" spellcheck="false">Enterprises &middot; Varanasi</div>
+          <div class="biz-tag" contenteditable="true" id="bizTag" spellcheck="false">Journeys LLP &middot; Varanasi</div>
           <div class="biz-line" contenteditable="true" id="bizAddr" spellcheck="false">First floor, Jawahar Nagar, B27/92-13, Durgakund Rd, Jawahar Nagar Colony, Bhelupur, Varanasi, Uttar Pradesh 221005</div>
           <div class="biz-line"><span contenteditable="true" id="bizPhone" style="display:inline-block" spellcheck="false">+91 92143 13559</span> &nbsp;&middot;&nbsp; <span contenteditable="true" id="bizEmail" style="display:inline-block" spellcheck="false">info@wandermate.in</span> &nbsp;&middot;&nbsp; <span contenteditable="true" id="bizWeb" style="display:inline-block" spellcheck="false">www.wandermate.in</span></div>
-          <div class="biz-line">GSTIN: <span contenteditable="true" id="bizGstin" style="display:inline-block" spellcheck="false">09NTTPS7465C1ZL</span></div>
+          <div class="biz-line">PAN: <span contenteditable="true" id="bizPan" style="display:inline-block" spellcheck="false">NTTPS7465C</span> &nbsp;&middot;&nbsp; TAN: <span contenteditable="true" id="bizTan" style="display:inline-block" spellcheck="false">Add your TAN</span></div>
         </div>
       </div>
       <div class="doc-type">
         <h1 contenteditable="true" id="docType" spellcheck="false">Invoice</h1>
         <div class="num-row">
           <label class="tiny">No.</label>
-          <input id="invNumber" style="text-align:right" value="WME-2026-0001">
+          <input id="invNumber" style="text-align:right" value="WJL-2026-0001">
         </div>
         <div class="num-row">
           <label class="tiny">Date</label>
@@ -294,7 +294,7 @@
       <div class="field"><label class="tiny">Festival dates</label><input id="tripDates" value="23–25 Nov 2026"></div>
       <div class="field"><label class="tiny">Arrival pickup</label><input id="tripPickup" value="Varanasi Airport / Railway Station"></div>
       <div class="field"><label class="tiny">Travellers</label><input id="tripPax" type="number" min="1" value="2"></div>
-      <div class="field"><label class="tiny">Booking ref.</label><input id="tripRef" placeholder="e.g. WME-REF-118"></div>
+      <div class="field"><label class="tiny">Booking ref.</label><input id="tripRef" placeholder="e.g. WJL-REF-118"></div>
     </div>
 
     <table class="items" id="itemsTable">
@@ -376,7 +376,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       <div class="sig-block">
         <div class="biz-line" style="margin-top:0;">Sincerely,</div>
         <div class="biz-name" style="font-size:15px;" id="sigName">Ritesh Singh</div>
-        <div class="sig-title">Managing Partner &middot; WanderMate Enterprises</div>
+        <div class="sig-title">Managing Partner &middot; Wandermate Journeys LLP</div>
       </div>
     </div>
     </div>
@@ -406,9 +406,9 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
 <script>
 (function(){
   "use strict";
-  var LS_DRAFT = "wme_invoice_draft_v2";
-  var LS_PACKAGES = "wme_packages_v2";
-  var LS_COUNTER = "wme_invoice_counter_v2";
+  var LS_DRAFT = "wjl_invoice_draft_v3";
+  var LS_PACKAGES = "wjl_packages_v3";
+  var LS_COUNTER = "wjl_invoice_counter_v3";
 
   var SAMPLE_PACKAGES = [
     { name: "Dev Deepawali Premium — 2N3D", desc: "3-star stay, private sedan transfers, shared guide, Akashganga Festival (7 hrs) + Ganga Cruise (4 hrs), Ramnagar Fort buffet dinner", rate: 39999 },
@@ -433,7 +433,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   function nextInvoiceNumber(){
     var n = 1;
     try{ n = parseInt(localStorage.getItem(LS_COUNTER) || "1", 10); }catch(e){}
-    return "WME-2026-" + String(n).padStart(4,"0");
+    return "WJL-2026-" + String(n).padStart(4,"0");
   }
   function bumpCounter(){
     try{ var n = parseInt(localStorage.getItem(LS_COUNTER) || "1", 10); localStorage.setItem(LS_COUNTER, String(n+1)); }catch(e){}
@@ -608,7 +608,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   function saveDraft(){
     var data = { fields:{}, editable:{}, checks:{}, items: items, policy:$("policyText").value, notes:$("payNotes").value };
     fieldIds().forEach(function(id){ data.fields[id] = $(id).value; });
-    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizGstin","docType","sigName"].forEach(function(id){ data.editable[id] = $(id).textContent; });
+    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizPan","bizTan","docType","sigName"].forEach(function(id){ data.editable[id] = $(id).textContent; });
     data.checks.gstInclusive = $("gstInclusive").checked;
     try{ localStorage.setItem(LS_DRAFT, JSON.stringify(data)); }catch(e){}
     $("saveState").textContent = "Saved " + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
@@ -674,7 +674,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     $("policyText").addEventListener("input", scheduleSave);
     $("payNotes").addEventListener("input", scheduleSave);
     $("signeeName").addEventListener("input", function(){ $("sigName").textContent = $("signeeName").value; scheduleSave(); });
-    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizGstin","docType","sigName"].forEach(function(id){
+    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizPan","bizTan","docType","sigName"].forEach(function(id){
       $(id).addEventListener("input", function(){
         scheduleSave();
         if(id === "bizName") updateMonogram();

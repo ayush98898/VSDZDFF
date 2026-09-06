@@ -171,6 +171,14 @@
   .balance{ font-size:12.5px; color:var(--ink-soft); text-align:right; margin-top:10px;}
 
   .pay-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top:26px; padding-top:20px; border-top:1px solid var(--line); }
+  .bank-card{
+    border:1px solid var(--line); border-radius:6px; padding:4px 12px;
+    background: color-mix(in srgb, var(--navy) 4%, transparent);
+  }
+  .bank-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:7px 0; font-size:12.5px; }
+  .bank-row + .bank-row{ border-top:1px dashed var(--line); }
+  .bank-row .bank-label{ color:var(--ink-soft); font-weight:600; flex:none; }
+  .bank-row input{ text-align:right; font-family:"IBM Plex Mono", monospace; font-weight:500; }
   .sig-row{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:30px; gap:20px; }
   .sig-block .biz-line{ margin-top:3px; }
   .sig-title{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
@@ -360,7 +368,12 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
         <label class="tiny">Pay by UPI</label>
         <div class="field"><input id="payUpi" placeholder="e.g. wandermate@upi"></div>
         <label class="tiny">Bank transfer</label>
-        <div class="field"><input id="payBank" placeholder="Account name · number · IFSC"></div>
+        <div class="bank-card">
+          <div class="bank-row"><span class="bank-label">Account name</span><input id="bankName" value="WANDERMATE ENTERPRISES"></div>
+          <div class="bank-row"><span class="bank-label">Account no.</span><input id="bankAcc" value="50200119355575"></div>
+          <div class="bank-row"><span class="bank-label">IFSC</span><input id="bankIfsc" value="HDFC0004471"></div>
+          <div class="bank-row"><span class="bank-label">Bank</span><input id="bankBank" value="HDFC Bank"></div>
+        </div>
       </div>
       <div>
         <label class="tiny">Notes for the traveller</label>
@@ -583,7 +596,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   function fieldIds(){
     return ["invNumber","invDate","dueDate","custName","custPhone","custEmail","custAddr",
       "custState","custGstin","signeeName","tripDates","tripPickup","tripPax","tripRef",
-      "discPct","gstRate","advReqPct","advanceAmt","payUpi","payBank"];
+      "discPct","gstRate","advReqPct","advanceAmt","payUpi","bankName","bankAcc","bankIfsc","bankBank"];
   }
   function saveDraft(){
     var data = { fields:{}, editable:{}, checks:{}, items: items, policy:$("policyText").value, notes:$("payNotes").value };
@@ -650,7 +663,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       $(id).addEventListener("input", recalc); $(id).addEventListener("change", recalc);
     });
     ["custName","custPhone","custEmail","custAddr","custGstin","signeeName","tripDates","tripPickup","tripPax","tripRef",
-     "invNumber","invDate","dueDate","payUpi","payBank"].forEach(function(id){ $(id).addEventListener("input", scheduleSave); });
+     "invNumber","invDate","dueDate","payUpi","bankName","bankAcc","bankIfsc","bankBank"].forEach(function(id){ $(id).addEventListener("input", scheduleSave); });
     $("policyText").addEventListener("input", scheduleSave);
     $("payNotes").addEventListener("input", scheduleSave);
     $("signeeName").addEventListener("input", function(){ $("sigName").textContent = $("signeeName").value; scheduleSave(); });

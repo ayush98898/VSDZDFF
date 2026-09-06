@@ -267,7 +267,7 @@
         <div class="field"><input id="custAddr" placeholder="Billing city / address" value="Bengaluru, Karnataka"></div>
       </div>
       <div>
-        <label class="tiny">Customer GST state (for CGST/SGST vs IGST)</label>
+        <label class="tiny">Customer state</label>
         <div class="field">
           <select id="custState">
             <option>Uttar Pradesh</option>
@@ -336,10 +336,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
           <label for="gstInclusive">Price includes GST at</label>
           <span style="white-space:nowrap;"><input class="rate" id="gstRate" type="number" value="5" min="0" max="28" style="display:inline-block;">%</span>
         </div>
-        <div class="state-choice" id="taxSplitLabel">→ CGST + SGST (customer in Uttar Pradesh)</div>
-        <div class="gst-sub t-row" id="rowCgst"><span>· CGST</span><span class="val" id="sumCgst">₹0</span></div>
-        <div class="gst-sub t-row" id="rowSgst"><span>· SGST</span><span class="val" id="sumSgst">₹0</span></div>
-        <div class="gst-sub t-row" id="rowIgst"><span>· IGST</span><span class="val" id="sumIgst">₹0</span></div>
+        <div class="gst-sub t-row" id="rowGst"><span>· GST</span><span class="val" id="sumGst">₹0</span></div>
 
         <div class="grand-bar">
           <span class="label">Total due</span>
@@ -549,10 +546,8 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
 
     var inclusive = $("gstInclusive").checked;
     var rate = Number($("gstRate").value)||0;
-    var isUP = $("custState").value === "Uttar Pradesh";
-    var isOutsideIndia = $("custState").value === "Other / outside India";
 
-    var taxable, cgst=0, sgst=0, igst=0, grand;
+    var taxable, grand;
     if(inclusive){
       taxable = rate ? afterDisc / (1 + rate/100) : afterDisc;
       grand = afterDisc;
@@ -561,22 +556,10 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       grand = afterDisc;
     }
     var gstAmt = afterDisc - taxable;
-    if(!isOutsideIndia){
-      if(isUP){ cgst = gstAmt/2; sgst = gstAmt/2; }
-      else{ igst = gstAmt; }
-      if(!inclusive) grand = taxable + gstAmt;
-    } else {
-      cgst = sgst = igst = 0;
-    }
+    if(!inclusive) grand = taxable + gstAmt;
 
     $("taxableLabel").textContent = inclusive ? "Taxable value (excl. GST)" : "Taxable value";
-    $("rowCgst").hidden = !(isUP && !isOutsideIndia && rate>0);
-    $("rowSgst").hidden = !(isUP && !isOutsideIndia && rate>0);
-    $("rowIgst").hidden = !(!isUP && !isOutsideIndia && rate>0);
-    $("taxSplitLabel").hidden = isOutsideIndia || rate===0;
-    $("taxSplitLabel").textContent = isUP
-      ? "→ CGST + SGST (customer in Uttar Pradesh)"
-      : "→ IGST (customer outside Uttar Pradesh)";
+    $("rowGst").hidden = rate===0;
 
     var advReqPct = Number($("advReqPct").value)||0;
     var advReqAmt = grand * advReqPct/100;
@@ -586,9 +569,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     $("sumSubtotal").textContent = fmtINR(subtotal);
     $("sumDiscount").textContent = "−" + fmtINR(discAmt);
     $("sumTaxable").textContent = fmtINR(taxable);
-    $("sumCgst").textContent = fmtINR(cgst);
-    $("sumSgst").textContent = fmtINR(sgst);
-    $("sumIgst").textContent = fmtINR(igst);
+    $("sumGst").textContent = fmtINR(gstAmt);
     $("sumGrand").textContent = fmtINR(grand);
     $("sumBalance").textContent = fmtINR(balance);
     $("sumWords").textContent = "Rupees " + numberToWordsIndian(grand) + " Only";
@@ -678,10 +659,43 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     });
 
     $("btnAddRow").addEventListener("click", function(){ addItem({ pkgIndex: packages.length>1?1:0, qty:1 }); });
-    $("btnPrint").addEventListener("click", function(){ window.print(); });
 
-    $("btnNew").addEventListener("click", function(){
-      if(!confirm("Start a new invoice? This clears the current customer, dates and line items (your saved packages stay).")) return;
+    $("btnPrint").addEventListener("click", function(){
+      // Some embedded preview panels sandbox the page and silently block window.print().
+      // Opening a fresh, unsandboxed tab with the same content is a more reliable path to the print dialog.
+      var w = null;
+      try{ w = window.open("", "_blank"); }catch(e){}
+      if(w && w.document){
+        try{
+          w.document.open();
+          w.document.write(document.documentElement.outerHTML);
+          w.document.close();
+          setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 300);
+          return;
+        }catch(e){}
+      }
+      try{ window.print(); }catch(e){}
+    });
+
+    // Two-click "arm then confirm" pattern instead of window.confirm(), which some
+    // embedded preview panels silently block.
+    function armConfirm(btn, message, onConfirm){
+      var armed = false, revertTimer = null, original = btn.textContent;
+      btn.addEventListener("click", function(){
+        if(!armed){
+          armed = true;
+          btn.textContent = message;
+          revertTimer = setTimeout(function(){ armed = false; btn.textContent = original; }, 4000);
+        } else {
+          clearTimeout(revertTimer);
+          armed = false;
+          btn.textContent = original;
+          onConfirm();
+        }
+      });
+    }
+
+    armConfirm($("btnNew"), "Click again to confirm", function(){
       bumpCounter();
       try{ localStorage.removeItem(LS_DRAFT); }catch(e){}
       $("itemsBody").innerHTML = ""; items = [];
@@ -697,8 +711,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     $("btnClosePresets").addEventListener("click", function(){ $("modalBack").hidden = true; });
     $("modalBack").addEventListener("click", function(e){ if(e.target === $("modalBack")) $("modalBack").hidden = true; });
     $("btnAddPreset").addEventListener("click", function(){ packages.push({ name:"New package", desc:"", rate:0 }); renderPresetList(); savePackages(); });
-    $("btnResetPresets").addEventListener("click", function(){
-      if(!confirm("Replace your package list with WanderMate's default Dev Deepawali packages?")) return;
+    armConfirm($("btnResetPresets"), "Click again to confirm", function(){
       packages = SAMPLE_PACKAGES.slice();
       renderPresetList(); savePackages();
     });

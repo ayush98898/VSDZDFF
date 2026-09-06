@@ -412,7 +412,6 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function(){
@@ -692,60 +691,267 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       try{ window.print(); }catch(e){}
     }
 
-    function generatePdfBlob(){
-      var card = $("invoiceCard");
-      var pdf = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
-      var pageWidth = pdf.internal.pageSize.getWidth();
-      var margin = 24;
-      return new Promise(function(resolve, reject){
-        pdf.html(card, {
-          x: margin, y: margin,
-          width: pageWidth - margin * 2,
-          windowWidth: card.scrollWidth,
-          html2canvas: {
-            scale: 2,
-            backgroundColor: "#ffffff",
-            onclone: function(clonedDoc){
-              clonedDoc.querySelectorAll(".toolbar,.row-del,.add-row,.modal-back").forEach(function(el){ el.remove(); });
-              clonedDoc.querySelectorAll("input,select,textarea").forEach(function(el){
-                el.style.border = "none";
-                el.style.background = "transparent";
-              });
-            }
-          },
-          callback: function(doc){
-            try{ resolve(doc.output("blob")); }catch(e){ reject(e); }
-          }
-        });
+    // Builds the PDF directly from the invoice's live values using jsPDF's vector
+    // drawing API (text/rect/line) rather than rasterizing the DOM: this avoids
+    // relying on html2canvas, which chokes on modern CSS (custom properties,
+    // color-mix()) used throughout this page's stylesheet and can hang silently.
+    function buildInvoicePdf(){
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({ unit: "pt", format: "a4" });
+      var pageW = doc.internal.pageSize.getWidth();
+      var pageH = doc.internal.pageSize.getHeight();
+      var ML = 40, MR = pageW - 40;
+      var NAVY = [21,34,83], INK = [18,26,59], SOFT = [91,100,132], RUST = [181,80,47], LINE = [220,224,238];
+      var y = 40;
+
+      function ensure(h){ if(y + h > pageH - 40){ doc.addPage(); y = 40; } }
+      function hr(yy){ doc.setDrawColor(LINE[0],LINE[1],LINE[2]); doc.setLineWidth(0.75); doc.line(ML, yy, MR, yy); }
+      // jsPDF's standard fonts only support WinAnsiEncoding, which has no ₹ or the
+      // Unicode minus sign — passing them through corrupts the glyph AND its width
+      // calculation, which silently shifts/truncates whatever follows on the line.
+      function txt(str){
+        return String(str == null ? "" : str)
+          .replace(/₹/g, "Rs ")
+          .replace(/−/g, "-")
+          .trim();
+      }
+      function label(text, x, yy){
+        doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+        doc.text(txt(text).toUpperCase(), x, yy);
+      }
+      function val(text, x, yy, opts){
+        doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(INK[0],INK[1],INK[2]);
+        doc.text(txt(text), x, yy, opts||{});
+      }
+      function wrap(text, width){ return doc.splitTextToSize(txt(text), width); }
+      function fit1(text, width){
+        doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+        var lines = doc.splitTextToSize(txt(text), width);
+        if(lines.length <= 1) return lines[0] || "";
+        return lines[0].replace(/\s*$/,'') + "…";
+      }
+
+      // Header: logo + business identity
+      try{
+        var img = $("monogram").querySelector("img");
+        if(img && img.src) doc.addImage(img.src, "JPEG", ML, y - 6, 32, 32);
+      }catch(e){}
+      var hx = ML + 42;
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
+      doc.text(txt($("bizName").textContent), hx, y + 4);
+      doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+      doc.text(txt($("bizTag").textContent).toUpperCase(), hx, y + 15);
+
+      doc.setFont("helvetica","bold"); doc.setFontSize(17); doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
+      doc.text(txt($("docType").textContent), MR, y + 6, {align:"right"});
+      doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+      doc.text("NO. " + $("invNumber").value, MR, y + 19, {align:"right"});
+      doc.text("DATE " + $("invDate").value, MR, y + 30, {align:"right"});
+      doc.text("DUE " + $("dueDate").value, MR, y + 41, {align:"right"});
+
+      y += 26;
+      doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+      wrap(txt($("bizAddr").textContent), 270).forEach(function(l){ doc.text(l, hx, y); y += 9.5; });
+      doc.text(txt($("bizPhone").textContent) + "   " + txt($("bizEmail").textContent), hx, y); y += 9.5;
+      doc.text(txt($("bizWeb").textContent), hx, y); y += 9.5;
+      doc.text("PAN: " + txt($("bizPan").textContent) + "   TAN: " + txt($("bizTan").textContent), hx, y); y += 9.5;
+      doc.text("GSTIN: " + txt($("bizGstinOld").textContent), hx, y);
+
+      y = Math.max(y, 40 + 44) + 14;
+      hr(y); y += 16;
+
+      // Client / customer columns
+      var colR = ML + 280;
+      var sy = y;
+      label("Client name", ML, y); val($("custName").value, ML, y + 11);
+      label("Customer state", colR, sy); val($("custState").value, colR, sy + 11);
+      y = sy + 20;
+      label("Phone", ML, y); val($("custPhone").value, ML, y + 11);
+      label("Customer GSTIN", colR, y); val($("custGstin").value || "—", colR, y + 11);
+      y += 20;
+      label("Email", ML, y); val($("custEmail").value, ML, y + 11);
+      label("Managing partner", colR, y); val($("signeeName").value, colR, y + 11);
+      y += 20;
+      label("Home city", ML, y); val($("custAddr").value, ML, y + 11);
+      y += 26;
+
+      // Trip strip
+      ensure(38);
+      doc.setFillColor(245,246,250); doc.rect(ML, y, MR - ML, 32, "F");
+      var tw = (MR - ML) / 4;
+      [["Festival dates", $("tripDates").value], ["Arrival pickup", $("tripPickup").value],
+       ["Travellers", $("tripPax").value], ["Booking ref.", $("tripRef").value || "—"]
+      ].forEach(function(c, i){ label(c[0], ML + 10 + i*tw, y + 12); val(fit1(c[1], tw - 16), ML + 10 + i*tw, y + 24); });
+      y += 46;
+
+      // Items table
+      ensure(24);
+      doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]); doc.rect(ML, y, MR - ML, 18, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor(255,255,255);
+      doc.text("PACKAGE", ML + 4, y + 12);
+      doc.text("WHAT'S INCLUDED", ML + 122, y + 12);
+      doc.text("PAX", ML + 306, y + 12, {align:"right"});
+      doc.text("RATE", ML + 360, y + 12, {align:"right"});
+      doc.text("DISC%", ML + 405, y + 12, {align:"right"});
+      doc.text("AMOUNT", MR - 4, y + 12, {align:"right"});
+      y += 18;
+
+      var rows = $("itemsBody").children;
+      for(var r = 0; r < rows.length; r++){
+        var tr = rows[r];
+        var pkgName = tr.querySelector(".pkg-select").selectedOptions[0].textContent;
+        var desc = tr.querySelector(".it-desc").value;
+        var qty = tr.querySelector(".it-qty").value;
+        var rate = tr.querySelector(".it-rate").value;
+        var disc = tr.querySelector(".it-disc").value;
+        var amt = tr.querySelector(".amt-cell").textContent;
+
+        var pkgLines = wrap(pkgName, 112).slice(0, 2);
+        var descLines = wrap(desc, 175).slice(0, 3);
+        var lineCount = Math.max(pkgLines.length, descLines.length, 1);
+        var rowH = lineCount * 10 + 8;
+        ensure(rowH + 6);
+
+        doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(INK[0],INK[1],INK[2]);
+        pkgLines.forEach(function(l, i){ doc.text(l, ML + 4, y + 10 + i*10); });
+        descLines.forEach(function(l, i){ doc.text(l, ML + 122, y + 10 + i*10); });
+        doc.text(String(qty), ML + 306, y + 10, {align:"right"});
+        doc.text(txt(fmtINR(Number(rate)||0)), ML + 360, y + 10, {align:"right"});
+        doc.text(String(disc), ML + 405, y + 10, {align:"right"});
+        doc.text(txt(amt), MR - 4, y + 10, {align:"right"});
+
+        y += rowH;
+        hr(y); y += 6;
+      }
+      y += 8;
+
+      // Policy (left) + totals (right)
+      var leftW = 300, rightX = ML + leftW + 24;
+      ensure(24);
+      label("Booking policy", ML, y);
+      var totalsTopY = y;
+      var py = y + 12;
+      doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(INK[0],INK[1],INK[2]);
+      wrap($("policyText").value, leftW).forEach(function(l){
+        if(py > pageH - 40){ doc.addPage(); py = 40; }
+        doc.text(l, ML, py); py += 9.5;
       });
+
+      var ty = totalsTopY + 12;
+      function totalRow(lbl, v, opts){
+        opts = opts || {};
+        doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+        doc.setFontSize(opts.size || 9);
+        var c = opts.color || INK;
+        doc.setTextColor(c[0], c[1], c[2]);
+        doc.text(txt(lbl), rightX, ty);
+        doc.text(txt(v), MR, ty, {align:"right"});
+        ty += opts.gap || 13;
+      }
+      totalRow("Subtotal", $("sumSubtotal").textContent);
+      totalRow("Discount " + $("discPct").value + "%", $("sumDiscount").textContent);
+      ty += 3; hr(ty - 8); ty += 5;
+      totalRow($("taxableLabel").textContent, $("sumTaxable").textContent);
+      if(!$("rowGst").hidden){ totalRow("GST", $("sumGst").textContent, {color: SOFT, size: 8}); }
+      ty += 4;
+      doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]); doc.rect(rightX - 8, ty - 11, MR - rightX + 8, 21, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(255,255,255);
+      doc.text("TOTAL DUE", rightX, ty + 2);
+      doc.text(txt($("sumGrand").textContent), MR, ty + 2, {align:"right"});
+      ty += 22;
+      doc.setFont("helvetica","italic"); doc.setFontSize(7.3); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+      doc.text(txt($("sumWords").textContent), MR, ty, {align:"right"});
+      ty += 14;
+      doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(RUST[0],RUST[1],RUST[2]);
+      wrap("Kindly pay " + $("advPctText").textContent + " (" + $("advAmtText").textContent + ") of the total package cost to confirm this booking.", MR - rightX)
+        .forEach(function(l){ doc.text(l, rightX, ty); ty += 9.5; });
+      ty += 6;
+      doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+      doc.text(txt("Balance due: " + $("sumBalance").textContent), MR, ty, {align:"right"});
+
+      y = Math.max(py, ty) + 18;
+
+      // Payment + notes
+      ensure(90);
+      label("Pay by UPI", ML, y); val($("payUpi").value || "—", ML, y + 11);
+      label("Notes for the traveller", rightX, y);
+      var ny = y + 11;
+      wrap($("payNotes").value, MR - rightX).slice(0, 6).forEach(function(l){ doc.text(l, rightX, ny); ny += 9.5; });
+
+      y += 24;
+      label("Bank transfer", ML, y); y += 6;
+      var bankRows = [["Account name", $("bankName").value], ["Account no.", $("bankAcc").value],
+        ["IFSC", $("bankIfsc").value], ["Bank", $("bankBank").value]];
+      doc.setDrawColor(LINE[0],LINE[1],LINE[2]);
+      doc.rect(ML, y, 300, bankRows.length*15 + 6, "S");
+      var by = y + 12;
+      bankRows.forEach(function(b){
+        doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+        doc.text(b[0], ML + 8, by);
+        doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(INK[0],INK[1],INK[2]);
+        doc.text(txt(b[1]), ML + 292, by, {align:"right"});
+        by += 15;
+      });
+      y = Math.max(y + bankRows.length*15 + 16, ny + 14);
+
+      // Signature
+      ensure(40);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(INK[0],INK[1],INK[2]);
+      doc.text("Sincerely,", ML, y); y += 12;
+      doc.setFont("helvetica","bold"); doc.setFontSize(10);
+      doc.text($("signeeName").value, ML, y); y += 11;
+      doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
+      doc.text("Managing Partner · Wandermate Journeys LLP", ML, y);
+
+      // Footer band (every page)
+      var pageCount = doc.internal.getNumberOfPages();
+      for(var p = 1; p <= pageCount; p++){
+        doc.setPage(p);
+        doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]); doc.rect(0, pageH - 26, pageW, 26, "F");
+        doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(255,255,255);
+        doc.text(txt($("bizPhone").textContent), ML, pageH - 10);
+        doc.text(txt($("bizEmail").textContent) + "  ·  " + txt($("bizWeb").textContent), pageW/2, pageH - 10, {align:"center"});
+        doc.text("Varanasi, Uttar Pradesh", MR, pageH - 10, {align:"right"});
+      }
+
+      return doc.output("arraybuffer");
     }
 
     $("btnPrint").addEventListener("click", function(){
       var btn = $("btnPrint");
       var original = btn.textContent;
+      var settled = false;
 
-      function useFallback(){ btn.textContent = original; printViaNewTab(); }
+      function once(fn){ return function(){ if(settled) return; settled = true; fn.apply(null, arguments); }; }
+      var doFallback = once(function(){ btn.textContent = original; printViaNewTab(); });
+      var doDone = once(function(){ btn.textContent = original; });
+
+      // Guarantee the button never gets stuck on "Preparing…", whatever fails.
+      setTimeout(function(){ doFallback(); }, 7000);
 
       var claudeApi = (typeof window.claude !== "undefined" && window.claude && typeof window.claude.use === "function") ? window.claude : null;
-      if(!claudeApi || typeof window.jspdf === "undefined" || typeof window.html2canvas === "undefined"){
-        useFallback();
+      if(!claudeApi || typeof window.jspdf === "undefined"){
+        doFallback();
         return;
       }
 
       btn.textContent = "Preparing PDF…";
-      claudeApi.use("downloads").then(function(downloads){
-        if(!downloads){ useFallback(); return; }
-        generatePdfBlob().then(function(blob){
-          var filename = "WanderMate-Invoice-" + ($("invNumber").value || "draft").replace(/[^A-Za-z0-9_-]+/g, "-") + ".pdf";
-          downloads.save({ filename: filename, data: blob }).then(function(){
-            btn.textContent = original;
-          }).catch(function(err){
-            btn.textContent = original;
-            if(err && err.code === "declined") return;
-            useFallback();
-          });
-        }).catch(function(){ useFallback(); });
-      }).catch(function(){ useFallback(); });
+      var usePromise;
+      try{ usePromise = claudeApi.use("downloads"); }catch(e){ doFallback(); return; }
+
+      Promise.resolve(usePromise).then(function(downloads){
+        if(settled) return;
+        if(!downloads){ doFallback(); return; }
+        var buffer;
+        try{ buffer = buildInvoicePdf(); }catch(e){ doFallback(); return; }
+        var filename = "WanderMate-Invoice-" + ($("invNumber").value || "draft").replace(/[^A-Za-z0-9_-]+/g, "-") + ".pdf";
+        downloads.save({ filename: filename, data: buffer }).then(function(){
+          doDone();
+        }).catch(function(err){
+          if(err && err.code === "declined"){ doDone(); return; }
+          doFallback();
+        });
+      }).catch(function(){ doFallback(); });
     });
 
     // Two-click "arm then confirm" pattern instead of window.confirm(), which some

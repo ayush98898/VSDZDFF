@@ -412,6 +412,8 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -673,7 +675,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
 
     $("btnAddRow").addEventListener("click", function(){ addItem({ pkgIndex: packages.length>1?1:0, qty:1 }); });
 
-    $("btnPrint").addEventListener("click", function(){
+    function printViaNewTab(){
       // Some embedded preview panels sandbox the page and silently block window.print().
       // Opening a fresh, unsandboxed tab with the same content is a more reliable path to the print dialog.
       var w = null;
@@ -688,6 +690,62 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
         }catch(e){}
       }
       try{ window.print(); }catch(e){}
+    }
+
+    function generatePdfBlob(){
+      var card = $("invoiceCard");
+      var pdf = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
+      var pageWidth = pdf.internal.pageSize.getWidth();
+      var margin = 24;
+      return new Promise(function(resolve, reject){
+        pdf.html(card, {
+          x: margin, y: margin,
+          width: pageWidth - margin * 2,
+          windowWidth: card.scrollWidth,
+          html2canvas: {
+            scale: 2,
+            backgroundColor: "#ffffff",
+            onclone: function(clonedDoc){
+              clonedDoc.querySelectorAll(".toolbar,.row-del,.add-row,.modal-back").forEach(function(el){ el.remove(); });
+              clonedDoc.querySelectorAll("input,select,textarea").forEach(function(el){
+                el.style.border = "none";
+                el.style.background = "transparent";
+              });
+            }
+          },
+          callback: function(doc){
+            try{ resolve(doc.output("blob")); }catch(e){ reject(e); }
+          }
+        });
+      });
+    }
+
+    $("btnPrint").addEventListener("click", function(){
+      var btn = $("btnPrint");
+      var original = btn.textContent;
+
+      function useFallback(){ btn.textContent = original; printViaNewTab(); }
+
+      var claudeApi = (typeof window.claude !== "undefined" && window.claude && typeof window.claude.use === "function") ? window.claude : null;
+      if(!claudeApi || typeof window.jspdf === "undefined" || typeof window.html2canvas === "undefined"){
+        useFallback();
+        return;
+      }
+
+      btn.textContent = "Preparing PDF…";
+      claudeApi.use("downloads").then(function(downloads){
+        if(!downloads){ useFallback(); return; }
+        generatePdfBlob().then(function(blob){
+          var filename = "WanderMate-Invoice-" + ($("invNumber").value || "draft").replace(/[^A-Za-z0-9_-]+/g, "-") + ".pdf";
+          downloads.save({ filename: filename, data: blob }).then(function(){
+            btn.textContent = original;
+          }).catch(function(err){
+            btn.textContent = original;
+            if(err && err.code === "declined") return;
+            useFallback();
+          });
+        }).catch(function(){ useFallback(); });
+      }).catch(function(){ useFallback(); });
     });
 
     // Two-click "arm then confirm" pattern instead of window.confirm(), which some

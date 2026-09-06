@@ -215,6 +215,13 @@
     .sheet{ margin:0; max-width:100%; padding:0; }
     .card{ border:none; box-shadow:none; border-radius:0; }
     input, select, textarea{ border-bottom-color:transparent !important; background:transparent !important; }
+    /* Keep the desktop two/four-column layout even when printing from a
+       narrow (mobile) viewport, so the printed page stays aligned instead
+       of collapsing to the single-column phone layout. */
+    .grid2, .lower-grid, .pay-row{ grid-template-columns: 1fr 1fr !important; }
+    .trip-strip{ grid-template-columns: repeat(4,1fr) !important; }
+    .head-row{ flex-direction: row !important; }
+    .doc-type, .doc-type .num-row, .doc-type .num-row input{ text-align: right !important; }
   }
 </style>
 </head>
@@ -703,6 +710,17 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       var ML = 40, MR = pageW - 40;
       var NAVY = [21,34,83], INK = [18,26,59], SOFT = [91,100,132], RUST = [181,80,47], LINE = [220,224,238];
       var y = 40;
+      // One shared two-column grid (gutter + column width) reused by every
+      // section below, so the left/right columns line up consistently down
+      // the whole page instead of each section improvising its own split.
+      var GAP = 22;
+      var COLW = (MR - ML - GAP) / 2;
+      var RX = ML + COLW + GAP;
+      // One shared, proportionally-widthed set of table columns.
+      var T_PKG_W = (MR - ML) * 0.20, T_DESC_W = (MR - ML) * 0.32, T_PAX_W = (MR - ML) * 0.08,
+          T_RATE_W = (MR - ML) * 0.14, T_DISC_W = (MR - ML) * 0.10;
+      var T_PKG_X = ML, T_DESC_X = ML + T_PKG_W,
+          T_PAX_R = T_DESC_X + T_DESC_W + T_PAX_W, T_RATE_R = T_PAX_R + T_RATE_W, T_DISC_R = T_RATE_R + T_DISC_W;
 
       function ensure(h){ if(y + h > pageH - 40){ doc.addPage(); y = 40; } }
       function hr(yy){ doc.setDrawColor(LINE[0],LINE[1],LINE[2]); doc.setLineWidth(0.75); doc.line(ML, yy, MR, yy); }
@@ -760,19 +778,18 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       y = Math.max(y, 40 + 44) + 14;
       hr(y); y += 16;
 
-      // Client / customer columns
-      var colR = ML + 280;
+      // Client / customer columns — shared grid
       var sy = y;
-      label("Client name", ML, y); val($("custName").value, ML, y + 11);
-      label("Customer state", colR, sy); val($("custState").value, colR, sy + 11);
+      label("Client name", ML, y); val(fit1($("custName").value, COLW), ML, y + 11);
+      label("Customer state", RX, sy); val(fit1($("custState").value, COLW), RX, sy + 11);
       y = sy + 20;
-      label("Phone", ML, y); val($("custPhone").value, ML, y + 11);
-      label("Customer GSTIN", colR, y); val($("custGstin").value || "—", colR, y + 11);
+      label("Phone", ML, y); val(fit1($("custPhone").value, COLW), ML, y + 11);
+      label("Customer GSTIN", RX, y); val(fit1($("custGstin").value || "—", COLW), RX, y + 11);
       y += 20;
-      label("Email", ML, y); val($("custEmail").value, ML, y + 11);
-      label("Managing partner", colR, y); val($("signeeName").value, colR, y + 11);
+      label("Email", ML, y); val(fit1($("custEmail").value, COLW), ML, y + 11);
+      label("Managing partner", RX, y); val(fit1($("signeeName").value, COLW), RX, y + 11);
       y += 20;
-      label("Home city", ML, y); val($("custAddr").value, ML, y + 11);
+      label("Home city", ML, y); val(fit1($("custAddr").value, COLW), ML, y + 11);
       y += 26;
 
       // Trip strip
@@ -788,11 +805,11 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       ensure(24);
       doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]); doc.rect(ML, y, MR - ML, 18, "F");
       doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor(255,255,255);
-      doc.text("PACKAGE", ML + 4, y + 12);
-      doc.text("WHAT'S INCLUDED", ML + 122, y + 12);
-      doc.text("PAX", ML + 306, y + 12, {align:"right"});
-      doc.text("RATE", ML + 360, y + 12, {align:"right"});
-      doc.text("DISC%", ML + 405, y + 12, {align:"right"});
+      doc.text("PACKAGE", T_PKG_X + 4, y + 12);
+      doc.text("WHAT'S INCLUDED", T_DESC_X + 4, y + 12);
+      doc.text("PAX", T_PAX_R - 4, y + 12, {align:"right"});
+      doc.text("RATE", T_RATE_R - 4, y + 12, {align:"right"});
+      doc.text("DISC%", T_DISC_R - 4, y + 12, {align:"right"});
       doc.text("AMOUNT", MR - 4, y + 12, {align:"right"});
       y += 18;
 
@@ -806,18 +823,18 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
         var disc = tr.querySelector(".it-disc").value;
         var amt = tr.querySelector(".amt-cell").textContent;
 
-        var pkgLines = wrap(pkgName, 112).slice(0, 2);
-        var descLines = wrap(desc, 175).slice(0, 3);
+        var pkgLines = wrap(pkgName, T_PKG_W - 8).slice(0, 2);
+        var descLines = wrap(desc, T_DESC_W - 8).slice(0, 3);
         var lineCount = Math.max(pkgLines.length, descLines.length, 1);
         var rowH = lineCount * 10 + 8;
         ensure(rowH + 6);
 
         doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(INK[0],INK[1],INK[2]);
-        pkgLines.forEach(function(l, i){ doc.text(l, ML + 4, y + 10 + i*10); });
-        descLines.forEach(function(l, i){ doc.text(l, ML + 122, y + 10 + i*10); });
-        doc.text(String(qty), ML + 306, y + 10, {align:"right"});
-        doc.text(txt(fmtINR(Number(rate)||0)), ML + 360, y + 10, {align:"right"});
-        doc.text(String(disc), ML + 405, y + 10, {align:"right"});
+        pkgLines.forEach(function(l, i){ doc.text(l, T_PKG_X + 4, y + 10 + i*10); });
+        descLines.forEach(function(l, i){ doc.text(l, T_DESC_X + 4, y + 10 + i*10); });
+        doc.text(String(qty), T_PAX_R - 4, y + 10, {align:"right"});
+        doc.text(txt(fmtINR(Number(rate)||0)), T_RATE_R - 4, y + 10, {align:"right"});
+        doc.text(String(disc), T_DISC_R - 4, y + 10, {align:"right"});
         doc.text(txt(amt), MR - 4, y + 10, {align:"right"});
 
         y += rowH;
@@ -825,14 +842,13 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       }
       y += 8;
 
-      // Policy (left) + totals (right)
-      var leftW = 300, rightX = ML + leftW + 24;
+      // Policy (left) + totals (right) — same shared grid as the client/customer columns
       ensure(24);
       label("Booking policy", ML, y);
       var totalsTopY = y;
       var py = y + 12;
       doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(INK[0],INK[1],INK[2]);
-      wrap($("policyText").value, leftW).forEach(function(l){
+      wrap($("policyText").value, COLW).forEach(function(l){
         if(py > pageH - 40){ doc.addPage(); py = 40; }
         doc.text(l, ML, py); py += 9.5;
       });
@@ -844,52 +860,52 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
         doc.setFontSize(opts.size || 9);
         var c = opts.color || INK;
         doc.setTextColor(c[0], c[1], c[2]);
-        doc.text(txt(lbl), rightX, ty);
+        doc.text(txt(lbl), RX, ty);
         doc.text(txt(v), MR, ty, {align:"right"});
         ty += opts.gap || 13;
       }
       totalRow("Subtotal", $("sumSubtotal").textContent);
       totalRow("Discount " + $("discPct").value + "%", $("sumDiscount").textContent);
-      ty += 3; hr(ty - 8); ty += 5;
+      ty += 3; doc.setDrawColor(LINE[0],LINE[1],LINE[2]); doc.setLineWidth(0.75); doc.line(RX, ty - 8, MR, ty - 8); ty += 5;
       totalRow($("taxableLabel").textContent, $("sumTaxable").textContent);
       if(!$("rowGst").hidden){ totalRow("GST", $("sumGst").textContent, {color: SOFT, size: 8}); }
       ty += 4;
-      doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]); doc.rect(rightX - 8, ty - 11, MR - rightX + 8, 21, "F");
+      doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]); doc.rect(RX - 8, ty - 11, MR - RX + 8, 21, "F");
       doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(255,255,255);
-      doc.text("TOTAL DUE", rightX, ty + 2);
+      doc.text("TOTAL DUE", RX, ty + 2);
       doc.text(txt($("sumGrand").textContent), MR, ty + 2, {align:"right"});
       ty += 22;
       doc.setFont("helvetica","italic"); doc.setFontSize(7.3); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
       doc.text(txt($("sumWords").textContent), MR, ty, {align:"right"});
       ty += 14;
       doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(RUST[0],RUST[1],RUST[2]);
-      wrap("Kindly pay " + $("advPctText").textContent + " (" + $("advAmtText").textContent + ") of the total package cost to confirm this booking.", MR - rightX)
-        .forEach(function(l){ doc.text(l, rightX, ty); ty += 9.5; });
+      wrap("Kindly pay " + $("advPctText").textContent + " (" + $("advAmtText").textContent + ") of the total package cost to confirm this booking.", COLW)
+        .forEach(function(l){ doc.text(l, RX, ty); ty += 9.5; });
       ty += 6;
       doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
       doc.text(txt("Balance due: " + $("sumBalance").textContent), MR, ty, {align:"right"});
 
       y = Math.max(py, ty) + 18;
 
-      // Payment + notes
+      // Payment + notes — same shared grid
       ensure(90);
-      label("Pay by UPI", ML, y); val($("payUpi").value || "—", ML, y + 11);
-      label("Notes for the traveller", rightX, y);
+      label("Pay by UPI", ML, y); val(fit1($("payUpi").value || "—", COLW), ML, y + 11);
+      label("Notes for the traveller", RX, y);
       var ny = y + 11;
-      wrap($("payNotes").value, MR - rightX).slice(0, 6).forEach(function(l){ doc.text(l, rightX, ny); ny += 9.5; });
+      wrap($("payNotes").value, COLW).slice(0, 6).forEach(function(l){ doc.text(l, RX, ny); ny += 9.5; });
 
       y += 24;
       label("Bank transfer", ML, y); y += 6;
       var bankRows = [["Account name", $("bankName").value], ["Account no.", $("bankAcc").value],
         ["IFSC", $("bankIfsc").value], ["Bank", $("bankBank").value]];
       doc.setDrawColor(LINE[0],LINE[1],LINE[2]);
-      doc.rect(ML, y, 300, bankRows.length*15 + 6, "S");
+      doc.rect(ML, y, COLW, bankRows.length*15 + 6, "S");
       var by = y + 12;
       bankRows.forEach(function(b){
         doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
         doc.text(b[0], ML + 8, by);
         doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(INK[0],INK[1],INK[2]);
-        doc.text(txt(b[1]), ML + 292, by, {align:"right"});
+        doc.text(fit1(b[1], COLW - 16), ML + COLW - 8, by, {align:"right"});
         by += 15;
       });
       y = Math.max(y + bankRows.length*15 + 16, ny + 14);

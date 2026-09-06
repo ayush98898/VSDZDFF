@@ -104,11 +104,12 @@
   .monogram{
     flex: none; width:54px; height:54px; border-radius:50%;
     background: radial-gradient(circle at 32% 28%, var(--navy-2), var(--navy) 70%);
-    color:#F4F6FF; font-family:"Archivo",sans-serif; font-weight:800; font-size:17px; letter-spacing:-.02em;
     display:flex; align-items:center; justify-content:center;
     box-shadow: 0 3px 10px color-mix(in srgb, var(--navy) 55%, transparent);
-    border: 2px solid color-mix(in srgb, var(--rust) 70%, transparent);
+    border: 1px solid color-mix(in srgb, #FFFFFF 25%, transparent);
+    padding: 6px;
   }
+  .monogram svg{ width:100%; height:100%; display:block; }
   .biz-name{ font-size: clamp(19px,2.6vw,23px); font-weight:800; letter-spacing:-.01em; color:var(--navy); }
   .biz-tag{ font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; margin-top:1px; }
   .biz-line{ font-size:12.5px; color:var(--ink-soft); margin-top:6px; }
@@ -230,7 +231,17 @@
 
     <div class="head-row">
       <div class="biz-block">
-        <div class="monogram" id="monogram">WM</div>
+        <div class="monogram" id="monogram" aria-label="WanderMate logo">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="48" cy="52" r="42" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+            <path d="M 76,18 A 44,44 0 0 1 89,49" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+            <g transform="translate(74,20) rotate(-40)">
+              <path d="M -11,7 L 17,0 L -11,-7 L -11,-1.5 L 9,0 L -11,1.5 Z" fill="#FFFFFF"/>
+            </g>
+            <text x="26" y="72" font-family="Archivo, sans-serif" font-weight="800" font-size="42" font-style="italic" fill="#FFFFFF" transform="rotate(-4 26 72)">W</text>
+            <text x="54" y="74" font-family="Archivo, sans-serif" font-weight="800" font-size="42" font-style="italic" fill="#FFFFFF" transform="rotate(3 54 74)">M</text>
+          </svg>
+        </div>
         <div>
           <div class="biz-name" contenteditable="true" id="bizName" spellcheck="false">WANDERMATE</div>
           <div class="biz-tag" contenteditable="true" id="bizTag" spellcheck="false">Journeys LLP &middot; Varanasi</div>
@@ -675,17 +686,8 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     $("payNotes").addEventListener("input", scheduleSave);
     $("signeeName").addEventListener("input", function(){ $("sigName").textContent = $("signeeName").value; scheduleSave(); });
     ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizPan","bizTan","docType","sigName"].forEach(function(id){
-      $(id).addEventListener("input", function(){
-        scheduleSave();
-        if(id === "bizName") updateMonogram();
-      });
+      $(id).addEventListener("input", scheduleSave);
     });
-    updateMonogram();
-    function updateMonogram(){
-      var words = ($("bizName").textContent.trim() + " " + $("bizTag").textContent.trim()).split(/\s+/).filter(Boolean);
-      var initials = (words[0]||"W")[0] + ((words[1]||"M")[0]||"");
-      $("monogram").textContent = initials.toUpperCase();
-    }
 
     $("btnAddRow").addEventListener("click", function(){ addItem({ pkgIndex: packages.length>1?1:0, qty:1 }); });
     $("btnPrint").addEventListener("click", function(){ window.print(); });

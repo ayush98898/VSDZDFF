@@ -168,7 +168,17 @@
   .advance-bar b{ color:var(--rust); }
   .advance-inputs{ display:flex; gap:14px; margin-top:8px; flex-wrap:wrap; }
   .advance-inputs .field{ flex:1; min-width:120px; margin-bottom:0; }
-  .balance{ font-size:12.5px; color:var(--ink-soft); text-align:right; margin-top:10px;}
+
+  .payment-status{
+    display:grid; grid-template-columns:1fr 1fr; gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:7px;
+    overflow:hidden; margin-top:12px;
+  }
+  .ps-tile{ background:var(--panel); padding:10px 14px 11px; }
+  .ps-val{ display:block; font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:600; margin-top:3px; }
+  .ps-val.good{ color:var(--good); }
+  .ps-val.due{ color:var(--rust); }
+  .ps-val.due.clear{ color:var(--good); }
 
   .pay-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top:26px; padding-top:20px; border-top:1px solid var(--line); }
   .bank-card{
@@ -359,14 +369,24 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
         </div>
         <div class="words" id="sumWords">Rupees Zero Only</div>
 
+        <div class="payment-status" id="paymentStatus">
+          <div class="ps-tile">
+            <span class="tiny">Amount paid</span>
+            <span class="ps-val good" id="psPaid">₹0</span>
+          </div>
+          <div class="ps-tile">
+            <span class="tiny" id="psDueLabel">Amount due</span>
+            <span class="ps-val due" id="psDue">₹0</span>
+          </div>
+        </div>
+
         <div class="advance-bar" id="advanceBar">
           Kindly pay <b id="advPctText">50%</b> (<b id="advAmtText">₹0</b>) of the total package cost to confirm this booking.
           <div class="advance-inputs">
             <div class="field"><label class="tiny">Advance required %</label><input id="advReqPct" type="number" min="0" max="100" value="50"></div>
-            <div class="field"><label class="tiny">Advance received ₹</label><input id="advanceAmt" type="number" min="0" value="0"></div>
+            <div class="field"><label class="tiny">Amount paid so far ₹</label><input id="advanceAmt" type="number" min="0" value="0"></div>
           </div>
         </div>
-        <div class="balance">Balance due: <b id="sumBalance">₹0</b></div>
       </div>
     </div>
 
@@ -592,10 +612,16 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     $("sumTaxable").textContent = fmtINR(taxable);
     $("sumGst").textContent = fmtINR(gstAmt);
     $("sumGrand").textContent = fmtINR(grand);
-    $("sumBalance").textContent = fmtINR(balance);
     $("sumWords").textContent = "Rupees " + numberToWordsIndian(grand) + " Only";
     $("advPctText").textContent = advReqPct + "%";
     $("advAmtText").textContent = fmtINR(advReqAmt);
+
+    $("psPaid").textContent = fmtINR(advance);
+    var dueEl = $("psDue");
+    var balClamped = Math.max(balance, 0);
+    dueEl.textContent = fmtINR(balClamped);
+    dueEl.classList.toggle("clear", balance <= 0);
+    $("psDueLabel").textContent = balance <= 0 ? "Amount due — fully paid" : "Amount due";
     scheduleSave();
   }
 
@@ -708,7 +734,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       var pageW = doc.internal.pageSize.getWidth();
       var pageH = doc.internal.pageSize.getHeight();
       var ML = 40, MR = pageW - 40;
-      var NAVY = [21,34,83], INK = [18,26,59], SOFT = [91,100,132], RUST = [181,80,47], LINE = [220,224,238];
+      var NAVY = [21,34,83], INK = [18,26,59], SOFT = [91,100,132], RUST = [181,80,47], LINE = [220,224,238], GOOD = [31,122,92];
       var y = 40;
       // One shared two-column grid (gutter + column width) reused by every
       // section below, so the left/right columns line up consistently down
@@ -877,13 +903,28 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       ty += 22;
       doc.setFont("helvetica","italic"); doc.setFontSize(7.3); doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
       doc.text(txt($("sumWords").textContent), MR, ty, {align:"right"});
-      ty += 14;
+      ty += 16;
+
+      // Amount paid / Amount due — two tiles, same treatment as the on-screen invoice
+      var tileGap = 8, tileW = (COLW - tileGap) / 2;
+      doc.setDrawColor(LINE[0],LINE[1],LINE[2]); doc.setLineWidth(0.75);
+      doc.rect(RX, ty, tileW, 32, "S");
+      doc.rect(RX + tileW + tileGap, ty, tileW, 32, "S");
+      label("Amount paid", RX + 8, ty + 13);
+      doc.setFont("helvetica","bold"); doc.setFontSize(12.5); doc.setTextColor(GOOD[0],GOOD[1],GOOD[2]);
+      doc.text(txt($("psPaid").textContent), RX + 8, ty + 26);
+
+      var dueClear = $("psDue").classList.contains("clear");
+      var dueColor = dueClear ? GOOD : RUST;
+      var dueX = RX + tileW + tileGap;
+      label($("psDueLabel").textContent, dueX + 8, ty + 13);
+      doc.setFont("helvetica","bold"); doc.setFontSize(12.5); doc.setTextColor(dueColor[0],dueColor[1],dueColor[2]);
+      doc.text(txt($("psDue").textContent), dueX + 8, ty + 26);
+      ty += 44;
+
       doc.setFont("helvetica","normal"); doc.setFontSize(7.8); doc.setTextColor(RUST[0],RUST[1],RUST[2]);
       wrap("Kindly pay " + $("advPctText").textContent + " (" + $("advAmtText").textContent + ") of the total package cost to confirm this booking.", COLW)
         .forEach(function(l){ doc.text(l, RX, ty); ty += 9.5; });
-      ty += 6;
-      doc.setTextColor(SOFT[0],SOFT[1],SOFT[2]);
-      doc.text(txt("Balance due: " + $("sumBalance").textContent), MR, ty, {align:"right"});
 
       y = Math.max(py, ty) + 18;
 

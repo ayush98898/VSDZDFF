@@ -315,7 +315,7 @@
     </div>
 
     <div class="trip-strip">
-      <div class="field"><label class="tiny">Festival dates</label><input id="tripDates" value="23–25 Nov 2026"></div>
+      <div class="field"><label class="tiny">Travel dates</label><input id="tripDates" value="23–25 Nov 2026"></div>
       <div class="field"><label class="tiny">Arrival pickup</label><input id="tripPickup" value="Varanasi Airport / Railway Station"></div>
       <div class="field"><label class="tiny">Travellers</label><input id="tripPax" type="number" min="1" value="2"></div>
       <div class="field"><label class="tiny">Booking ref.</label><input id="tripRef" placeholder="e.g. WJL-REF-118"></div>
@@ -450,7 +450,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   var SAMPLE_PACKAGES = [
     { name: "Dev Deepawali Premium — 2N3D", desc: "3-star stay, private sedan transfers, shared guide, Akashganga Festival (7 hrs) + Ganga Cruise (4 hrs), Ramnagar Fort buffet dinner", rate: 39999 },
     { name: "Dev Deepawali Luxury — 2N3D", desc: "5-star stay at The Radisson, private SUV, dedicated personal guide, Akashganga Festival + Ganga Cruise, private fine dining at Ramnagar Fort", rate: 59999 },
-    { name: "AKS Palace Premium Group Package", desc: "Hotel AKS Palace (4 rooms), 2 Innova Crysta cabs, premium guide, boating, photoshoot, food walk + evening food walk, VIP Darshan, VIP Aarti seats", rate: 170000 },
+    { name: "WanderMate Premium Kashi — 4N5D", desc: "Hotel AKS Palace (4 rooms), 2 Innova Crysta cabs, premium guide, boating, photoshoot, food walk + evening food walk, VIP Darshan, VIP Aarti seats", rate: 170000 },
     { name: "Custom line item", desc: "", rate: 0 }
   ];
 
@@ -823,7 +823,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       ensure(38);
       doc.setFillColor(245,246,250); doc.rect(ML, y, MR - ML, 32, "F");
       var tw = (MR - ML) / 4;
-      [["Festival dates", $("tripDates").value], ["Arrival pickup", $("tripPickup").value],
+      [["Travel dates", $("tripDates").value], ["Arrival pickup", $("tripPickup").value],
        ["Travellers", $("tripPax").value], ["Booking ref.", $("tripRef").value || "—"]
       ].forEach(function(c, i){ label(c[0], ML + 10 + i*tw, y + 12); val(fit1(c[1], tw - 16), ML + 10 + i*tw, y + 24); });
       y += 46;

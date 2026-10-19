@@ -259,7 +259,6 @@
           <div class="biz-tag" contenteditable="true" id="bizTag" spellcheck="false">Journeys LLP &middot; Varanasi</div>
           <div class="biz-line" contenteditable="true" id="bizAddr" spellcheck="false">First floor, Jawahar Nagar, B27/92-13, Durgakund Rd, Jawahar Nagar Colony, Bhelupur, Varanasi, Uttar Pradesh 221005</div>
           <div class="biz-line"><span contenteditable="true" id="bizPhone" style="display:inline-block" spellcheck="false">+91 92143 13559</span> &nbsp;&middot;&nbsp; <span contenteditable="true" id="bizEmail" style="display:inline-block" spellcheck="false">info@wandermate.in</span> &nbsp;&middot;&nbsp; <span contenteditable="true" id="bizWeb" style="display:inline-block" spellcheck="false">www.wandermate.in</span></div>
-          <div class="biz-line">PAN: <span contenteditable="true" id="bizPan" style="display:inline-block" spellcheck="false">NTTPS7465C</span> &nbsp;&middot;&nbsp; TAN: <span contenteditable="true" id="bizTan" style="display:inline-block" spellcheck="false">Add your TAN</span></div>
           <div class="biz-line">GSTIN: <span contenteditable="true" id="bizGstinOld" style="display:inline-block" spellcheck="false">09NTTPS7465C1ZL</span></div>
         </div>
       </div>
@@ -636,7 +635,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   function saveDraft(){
     var data = { fields:{}, editable:{}, checks:{}, items: items, policy:$("policyText").value, notes:$("payNotes").value };
     fieldIds().forEach(function(id){ data.fields[id] = $(id).value; });
-    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizPan","bizTan","bizGstinOld","docType","sigName"].forEach(function(id){ data.editable[id] = $(id).textContent; });
+    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizGstinOld","docType","sigName"].forEach(function(id){ data.editable[id] = $(id).textContent; });
     data.checks.gstInclusive = $("gstInclusive").checked;
     try{ localStorage.setItem(LS_DRAFT, JSON.stringify(data)); }catch(e){}
     $("saveState").textContent = "Saved " + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
@@ -702,7 +701,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     $("policyText").addEventListener("input", scheduleSave);
     $("payNotes").addEventListener("input", scheduleSave);
     $("signeeName").addEventListener("input", function(){ $("sigName").textContent = $("signeeName").value; scheduleSave(); });
-    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizPan","bizTan","bizGstinOld","docType","sigName"].forEach(function(id){
+    ["bizName","bizTag","bizAddr","bizPhone","bizEmail","bizWeb","bizGstinOld","docType","sigName"].forEach(function(id){
       $(id).addEventListener("input", scheduleSave);
     });
 
@@ -799,7 +798,6 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       wrap(txt($("bizAddr").textContent), 270).forEach(function(l){ doc.text(l, hx, y); y += 9.5; });
       doc.text(txt($("bizPhone").textContent) + "   " + txt($("bizEmail").textContent), hx, y); y += 9.5;
       doc.text(txt($("bizWeb").textContent), hx, y); y += 9.5;
-      doc.text("PAN: " + txt($("bizPan").textContent) + "   TAN: " + txt($("bizTan").textContent), hx, y); y += 9.5;
       doc.text("GSTIN: " + txt($("bizGstinOld").textContent), hx, y);
 
       y = Math.max(y, 40 + 44) + 14;

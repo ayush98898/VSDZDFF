@@ -282,13 +282,9 @@
     <div class="grid2">
       <div>
         <label class="tiny">Client name</label>
-        <div class="field"><input id="custName" placeholder="Traveller / group name" value="Rohan Malhotra"></div>
+        <div class="field"><input id="custName" placeholder="Traveller / group name" value="Bhawana Agrawal"></div>
         <label class="tiny">Phone</label>
-        <div class="field"><input id="custPhone" placeholder="Phone" value="+91 98765 43210"></div>
-        <label class="tiny">Email</label>
-        <div class="field"><input id="custEmail" placeholder="Email" value="rohan.malhotra@example.com"></div>
-        <label class="tiny">Home city</label>
-        <div class="field"><input id="custAddr" placeholder="Billing city / address" value="Bengaluru, Karnataka"></div>
+        <div class="field"><input id="custPhone" placeholder="Phone" value="+91 99263 33553"></div>
       </div>
       <div>
         <label class="tiny">Customer state</label>
@@ -628,7 +624,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   var saveTimer = null;
   function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 400); }
   function fieldIds(){
-    return ["invNumber","invDate","dueDate","custName","custPhone","custEmail","custAddr",
+    return ["invNumber","invDate","dueDate","custName","custPhone",
       "custState","custGstin","signeeName","tripDates","tripPickup","tripPax","tripRef",
       "discPct","gstRate","advReqPct","advanceAmt","payUpi","bankName","bankAcc","bankIfsc","bankBank"];
   }
@@ -696,7 +692,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
     ["discPct","gstRate","gstInclusive","advReqPct","advanceAmt","custState"].forEach(function(id){
       $(id).addEventListener("input", recalc); $(id).addEventListener("change", recalc);
     });
-    ["custName","custPhone","custEmail","custAddr","custGstin","signeeName","tripDates","tripPickup","tripPax","tripRef",
+    ["custName","custPhone","custGstin","signeeName","tripDates","tripPickup","tripPax","tripRef",
      "invNumber","invDate","dueDate","payUpi","bankName","bankAcc","bankIfsc","bankBank"].forEach(function(id){ $(id).addEventListener("input", scheduleSave); });
     $("policyText").addEventListener("input", scheduleSave);
     $("payNotes").addEventListener("input", scheduleSave);
@@ -811,10 +807,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       label("Phone", ML, y); val(fit1($("custPhone").value, COLW), ML, y + 11);
       label("Customer GSTIN", RX, y); val(fit1($("custGstin").value || "—", COLW), RX, y + 11);
       y += 20;
-      label("Email", ML, y); val(fit1($("custEmail").value, COLW), ML, y + 11);
       label("Managing partner", RX, y); val(fit1($("signeeName").value, COLW), RX, y + 11);
-      y += 20;
-      label("Home city", ML, y); val(fit1($("custAddr").value, COLW), ML, y + 11);
       y += 26;
 
       // Trip strip
@@ -1032,7 +1025,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       bumpCounter();
       try{ localStorage.removeItem(LS_DRAFT); }catch(e){}
       $("itemsBody").innerHTML = ""; items = [];
-      ["custName","custPhone","custEmail","custAddr","custGstin","tripRef"].forEach(function(id){ $(id).value = ""; });
+      ["custName","custPhone","custGstin","tripRef"].forEach(function(id){ $(id).value = ""; });
       $("advanceAmt").value = 0; $("discPct").value = 0;
       $("invNumber").value = nextInvoiceNumber();
       $("invDate").value = new Date().toISOString().slice(0,10);

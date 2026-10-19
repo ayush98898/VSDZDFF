@@ -327,7 +327,7 @@
           <th class="col-pkg">Package</th>
           <th class="col-desc">What's included</th>
           <th class="col-qty num">Pax</th>
-          <th class="col-rate num">Rate (₹/person)</th>
+          <th class="col-rate num">Rate (₹)</th>
           <th class="col-disc num">Disc %</th>
           <th class="col-amt num">Amount (₹)</th>
           <th class="col-del"></th>
@@ -336,7 +336,7 @@
       <tbody id="itemsBody"></tbody>
     </table>
     <button class="add-row ghost icon" id="btnAddRow">+ Add package line</button>
-    <span class="pkg-note">Prices are per person, 2N/3D, fully inclusive of GST and applicable government taxes — matching WanderMate's Dev Deepawali 2026 pricing.</span>
+    <span class="pkg-note">Prices shown are fully inclusive of GST and applicable government taxes.</span>
 
     <div class="lower-grid">
       <div class="policy">
@@ -450,6 +450,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
   var SAMPLE_PACKAGES = [
     { name: "Dev Deepawali Premium — 2N3D", desc: "3-star stay, private sedan transfers, shared guide, Akashganga Festival (7 hrs) + Ganga Cruise (4 hrs), Ramnagar Fort buffet dinner", rate: 39999 },
     { name: "Dev Deepawali Luxury — 2N3D", desc: "5-star stay at The Radisson, private SUV, dedicated personal guide, Akashganga Festival + Ganga Cruise, private fine dining at Ramnagar Fort", rate: 59999 },
+    { name: "AKS Palace Premium Group Package", desc: "Hotel AKS Palace (4 rooms), 2 Innova Crysta cabs, premium guide, boating, photoshoot, food walk + evening food walk, VIP Darshan, VIP Aarti seats", rate: 170000 },
     { name: "Custom line item", desc: "", rate: 0 }
   ];
 
@@ -849,8 +850,8 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
         var disc = tr.querySelector(".it-disc").value;
         var amt = tr.querySelector(".amt-cell").textContent;
 
-        var pkgLines = wrap(pkgName, T_PKG_W - 8).slice(0, 2);
-        var descLines = wrap(desc, T_DESC_W - 8).slice(0, 3);
+        var pkgLines = wrap(pkgName, T_PKG_W - 8).slice(0, 4);
+        var descLines = wrap(desc, T_DESC_W - 8).slice(0, 8);
         var lineCount = Math.max(pkgLines.length, descLines.length, 1);
         var rowH = lineCount * 10 + 8;
         ensure(rowH + 6);

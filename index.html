@@ -290,8 +290,9 @@
         <label class="tiny">Customer state</label>
         <div class="field">
           <select id="custState">
+            <option value="" selected>—</option>
             <option>Uttar Pradesh</option>
-            <option selected>Karnataka</option>
+            <option>Karnataka</option>
             <option>Maharashtra</option>
             <option>Delhi</option>
             <option>West Bengal</option>
@@ -802,7 +803,7 @@ Force Majeure: WanderMate is not liable for delays or changes caused by circumst
       // Client / customer columns — shared grid
       var sy = y;
       label("Client name", ML, y); val(fit1($("custName").value, COLW), ML, y + 11);
-      label("Customer state", RX, sy); val(fit1($("custState").value, COLW), RX, sy + 11);
+      label("Customer state", RX, sy); val(fit1($("custState").value || "—", COLW), RX, sy + 11);
       y = sy + 20;
       label("Phone", ML, y); val(fit1($("custPhone").value, COLW), ML, y + 11);
       label("Customer GSTIN", RX, y); val(fit1($("custGstin").value || "—", COLW), RX, y + 11);
